@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { FeedController } from './feed.controller';
+import { authenticate } from '../../middleware/auth';
+
+const router = Router();
+
+router.get('/home', authenticate, FeedController.getHomeFeed);
+router.get('/trending', authenticate, FeedController.getTrendingFeed);
+
+export default router;
