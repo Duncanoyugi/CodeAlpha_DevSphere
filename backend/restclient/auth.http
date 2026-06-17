@@ -1,0 +1,58 @@
+@serverUrl = http://localhost:5000
+@apiUrl = {{serverUrl}}/api
+@username = devsphere_test_user
+@email = devsphere_test_user@example.com
+@password = password123
+
+###
+GET {{serverUrl}}/health
+
+###
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "Joel Otieno",
+  "email": "joel@gmail.com",
+  "password": "Joel@1234"
+}
+
+###
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "short",
+  "email": "short@example.com",
+  "password": "12345"
+}
+
+###
+POST {{apiUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "joel@gmail.com",
+  "password": "Joel@1234"
+}
+
+###
+POST {{apiUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "wrong-password"
+}
+
+###
+GET {{apiUrl}}/auth/me
+
+###
+POST {{apiUrl}}/auth/refresh
+
+###
+POST {{apiUrl}}/auth/logout
+
+###
+GET {{apiUrl}}/auth/me

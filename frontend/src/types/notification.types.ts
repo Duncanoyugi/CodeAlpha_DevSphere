@@ -1,7 +1,7 @@
 export interface Notification {
   id: string
   userId: string
-  type: 'LIKE' | 'FOLLOW' | 'COMMENT'
+  type: 'LIKE' | 'FOLLOW' | 'COMMENT' | 'BADGE'
   actorId: string
   actorName: string
   postId: string | null

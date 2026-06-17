@@ -1,17 +1,33 @@
-import * as ToastPrimitive from '@radix-ui/react-toast'
-import { useState } from 'react'
+import {
+  Toast,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
+} from "./toast"
+import { useToast } from "./use-toast"
 
-export const Toaster = () => {
-  const [open, setOpen] = useState(false)
-  
+export function Toaster() {
+  const { toasts } = useToast()
+
   return (
-    <ToastPrimitive.Provider>
-      <ToastPrimitive.Root open={open} onOpenChange={setOpen}>
-        <ToastPrimitive.Title />
-        <ToastPrimitive.Description />
-        <ToastPrimitive.Close />
-      </ToastPrimitive.Root>
-      <ToastPrimitive.Viewport />
-    </ToastPrimitive.Provider>
+    <ToastProvider>
+      {toasts.map(function ({ id, title, description, action, ...props }) {
+        return (
+          <Toast key={id} {...props}>
+            <div className="grid gap-1">
+              {title && <ToastTitle>{title}</ToastTitle>}
+              {description && (
+                <ToastDescription>{description}</ToastDescription>
+              )}
+            </div>
+            {action}
+            <ToastClose />
+          </Toast>
+        )
+      })}
+      <ToastViewport />
+    </ToastProvider>
   )
 }

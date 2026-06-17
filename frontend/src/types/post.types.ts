@@ -16,6 +16,7 @@ export interface Post {
     avatar: string | null
   }
   likes?: string[]
+  comments?: { id: string }[]
   commentsCount?: number
   isLiked?: boolean
 }
