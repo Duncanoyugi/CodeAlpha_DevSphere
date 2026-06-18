@@ -28,6 +28,6 @@ export function usePostsByTag(tag: string) {
 export function useTrendingPosts(limit: number = 20) {
   return useQuery({
     queryKey: ['posts', 'trending'],
-    queryFn: () => postsApi.getTrending(limit),
+    queryFn: () => postsApi.getTrending({ limit }),
   })
 }

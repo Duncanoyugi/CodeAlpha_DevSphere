@@ -1,16 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentsApi } from '../../../api/comments.api'
 import { useToast } from '../../../components/ui/use-toast'
+import type { Comment } from '../../../types/comment.types'
 
 export function useComments(postId: string) {
   return useQuery({
     queryKey: ['comments', postId],
-    queryFn: () => commentsApi.getComments(postId),
+    queryFn: () => commentsApi.getComments(postId) as Promise<Comment[]>,
     enabled: !!postId,
   })
 }
 
 export function useCreateComment() {
+
   const queryClient = useQueryClient()
   const { toast } = useToast()
 

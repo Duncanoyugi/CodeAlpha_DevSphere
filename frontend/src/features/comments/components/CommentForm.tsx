@@ -8,9 +8,11 @@ import { commentSchema, type CommentInput } from '../../../lib/validators'
 
 interface CommentFormProps {
   postId: string
+  parentId?: string
 }
 
-export function CommentForm({ postId }: CommentFormProps) {
+export function CommentForm({ postId, parentId }: CommentFormProps) {
+
   const createComment = useCreateComment()
   const [isFocused, setIsFocused] = useState(false)
 
@@ -25,7 +27,8 @@ export function CommentForm({ postId }: CommentFormProps) {
 
   const onSubmit = (data: CommentInput) => {
     createComment.mutate(
-      { postId, content: data.content },
+      { postId, content: data.content, parentId },
+
       {
         onSuccess: () => {
           reset()
@@ -46,6 +49,7 @@ export function CommentForm({ postId }: CommentFormProps) {
       {errors.content && (
         <p className="text-sm text-destructive">{errors.content.message}</p>
       )}
+
       {isFocused && (
         <div className="flex justify-end gap-2">
           <Button

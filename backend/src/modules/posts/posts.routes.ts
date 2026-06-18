@@ -5,6 +5,7 @@ import { authenticate } from '../../middleware/auth';
 const router = Router();
 
 router.post('/', authenticate, PostsController.createPost);
+router.post('/upload', authenticate, PostsController.uploadImage);
 router.get('/:id', authenticate, PostsController.getPost);
 router.patch('/:id', authenticate, PostsController.updatePost);
 router.delete('/:id', authenticate, PostsController.deletePost);

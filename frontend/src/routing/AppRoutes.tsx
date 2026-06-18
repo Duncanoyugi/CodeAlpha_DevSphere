@@ -13,9 +13,14 @@ const Profile = lazy(() => import('../features/profile/components/Profile').then
 const PostDetail = lazy(() => import('../features/posts/components/PostDetail').then((m) => ({ default: m.PostDetail })))
 const CreatePost = lazy(() => import('../features/posts/components/CreatePost').then((m) => ({ default: m.CreatePost })))
 const TechnologyPage = lazy(() => import('../features/technologies/components/TechnologyPage').then((m) => ({ default: m.TechnologyPage })))
+const TechnologiesPage = lazy(() => import('../pages/TechnologiesPage').then((m) => ({ default: m.TechnologiesPage })))
 const Search = lazy(() => import('../features/search/components/Search').then((m) => ({ default: m.Search })))
 const SettingsPage = lazy(() => import('../pages/SettingsPage').then((m) => ({ default: m.SettingsPage })))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
+const TrendingPage = lazy(() => import('../pages/TrendingPage').then((m) => ({ default: m.TrendingPage })))
+const SavedPage = lazy(() => import('../pages/SavedPage').then((m) => ({ default: m.SavedPage })))
+const NotificationsPage = lazy(() => import('../pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })))
+const DevelopersPage = lazy(() => import('../pages/DevelopersPage').then((m) => ({ default: m.DevelopersPage })))
 
 export function AppRoutes() {
   return (
@@ -29,7 +34,12 @@ export function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route element={<AuthGuard />}>
-            <Route path="/feed" element={<Feed />} />
+            <Route path="/feed" element={<Feed feedType="home" />} />
+            <Route path="/trending" element={<TrendingPage />} />
+            <Route path="/developers" element={<DevelopersPage />} />
+            <Route path="/technologies" element={<TechnologiesPage />} />
+            <Route path="/saved" element={<SavedPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/profile/:username?" element={<Profile />} />
             <Route path="/post/:id" element={<PostDetail />} />
             <Route path="/create-post" element={<CreatePost />} />

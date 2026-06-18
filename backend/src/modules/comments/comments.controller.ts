@@ -5,8 +5,13 @@ import { AuthRequest } from '../../middleware/auth';
 export class CommentsController {
   static async createComment(req: AuthRequest, res: Response) {
     try {
-      const { postId, content } = req.body;
-      const comment = await CommentsService.createComment(req.userId!, postId, content);
+      const { postId, content, parentId } = req.body;
+      const comment = await CommentsService.createComment({
+        authorId: req.userId!,
+        postId,
+        content,
+        ...(parentId ? { parentId } : {}),
+      });
       res.status(201).json(comment);
     } catch (error: any) {
       res.status(400).json({ message: error.message });

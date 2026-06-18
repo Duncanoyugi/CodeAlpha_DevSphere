@@ -9,9 +9,12 @@ export interface Comment {
     username: string
     avatar: string | null
   }
+  replies?: Comment[]
 }
 
 export interface CreateCommentInput {
   content: string
   postId: string
+  parentId?: string
 }
+

@@ -75,4 +75,13 @@ export class UsersController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  static async getUsers(req: Request, res: Response) {
+    try {
+      const users = await UsersService.getUsers();
+      res.json(users);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
 }

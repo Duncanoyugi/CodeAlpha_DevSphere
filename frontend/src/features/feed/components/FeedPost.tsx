@@ -9,6 +9,7 @@ import { formatDate, getInitials, truncateText } from '../../../lib/utils'
 import type { Post } from '../../../types'
 import { useLikePost } from '../../likes/hooks/useLikePost'
 import { useUnlikePost } from '../../likes/hooks/useUnlikePost'
+import { useToggleBookmark } from '../../bookmarks/hooks/useToggleBookmark'
 
 interface FeedPostProps {
   post: Post
@@ -17,9 +18,14 @@ interface FeedPostProps {
 export function FeedPost({ post }: FeedPostProps) {
   const likePost = useLikePost()
   const unlikePost = useUnlikePost()
+  const toggleBookmark = useToggleBookmark()
 
-  const { author, title, content, tags, createdAt, likes, comments } = post
-  const isLiked = useMemo(() => !!post.isLiked, [post.isLiked])
+  const { author, title, content, tags, createdAt } = post
+  const isLiked = useMemo(() => !!post.liked, [post.liked])
+  const isBookmarked = useMemo(() => !!post.bookmarked, [post.bookmarked])
+
+  const likesCount = post.likesCount ?? (Array.isArray(post.likes) ? post.likes.length : 0)
+  const commentsCount = post.commentsCount ?? (Array.isArray(post.comments) ? post.comments.length : 0)
 
   return (
     <Card>
@@ -74,20 +80,29 @@ export function FeedPost({ post }: FeedPostProps) {
             }}
           >
             <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-            <span>{likes?.length || 0}</span>
+            <span>{likesCount}</span>
           </Button>
           <Link to={`/post/${post.id}`}>
             <Button variant="ghost" size="sm" className="gap-2">
               <MessageCircle className="h-4 w-4" />
-              <span>{comments?.length || 0}</span>
+              <span>{commentsCount}</span>
             </Button>
           </Link>
           <Button variant="ghost" size="sm">
             <Share2 className="h-4 w-4" />
           </Button>
         </div>
-        <Button variant="ghost" size="sm">
-          <Bookmark className="h-4 w-4" />
+        <Button
+          variant="ghost"
+          size="sm"
+          className={isBookmarked ? 'text-primary' : ''}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            toggleBookmark.mutate(post.id)
+          }}
+        >
+          <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
         </Button>
       </CardFooter>
     </Card>

@@ -19,12 +19,25 @@ export class FeedController {
   }
   
   static async getTrendingFeed(
-    req: Request<{}, any, any, { limit?: string }>,
+    req: AuthRequest & Request<{}, any, any, { limit?: string }>,
     res: Response
   ) {
     try {
       const limit = parseInt(req.query.limit as string) || 20;
       const feed = await FeedService.getTrendingFeed(limit);
+      res.json({ posts: feed, nextCursor: null });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  static async getDevelopersFeed(
+    req: AuthRequest & Request<{}, any, any, { limit?: string }>,
+    res: Response
+  ) {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const feed = await FeedService.getDevelopersFeed(req.userId!, limit);
       res.json(feed);
     } catch (error: any) {
       res.status(500).json({ message: error.message });

@@ -12,55 +12,71 @@ model User {
   email         String    @unique
   passwordHash  String
   avatar        String?
-  bio           String?    @db.Text
-  experience    String?    // Junior, Mid, Senior
+  bio           String?   @db.Text
+  experience    String?
   reputation    Int       @default(0)
-  lastActiveAt  DateTime? 
+  lastActiveAt  DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  
-  posts         Post[]
-  comments      Comment[]
-  likes         Like[]
-  following     Follow[]   @relation("Following")
-  followers     Follow[]   @relation("Followers")
-  skills        UserSkill[]
-  notifications Notification[]
-  activities    UserActivity[]
-  badges        Badge[]
-  reputationTxs ReputationTransaction[]
-  techFollows   UserTechnologyFollow[]
-  postViews     PostView[]
+
+  posts              Post[]
+  comments           Comment[]
+  likes              Like[]
+  following          Follow[]             @relation("Following")
+  followers          Follow[]             @relation("Followers")
+  skills             UserSkill[]
+  notifications      Notification[]
+  activities         UserActivity[]
+  badges             Badge[]
+  reputationTxs      ReputationTransaction[]
+  techFollows        UserTechnologyFollow[]
+  postViews          PostView[]
+  bookmarks          Bookmark[]
+  feedItems          FeedItem[]
+  techFeedItems      TechnologyFeedItem[]
+  recommendations    UserRecommendation[]  @relation("RecommendedTo")
+  recommendedTo      UserRecommendation[]  @relation("RecommendedUser")
 }
 
 model UserSkill {
   id        String   @id @default(cuid())
   userId    String
-  skill     String   // React, TypeScript, Node.js, etc.
-  level     String   // Beginner, Intermediate, Advanced
+  skill     String
+  level     String
   createdAt DateTime @default(now())
-  
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, skill])
 }
 
 model Post {
-  id          String    @id @default(cuid())
-  title       String
-  content     String    @db.Text
-  imageUrl    String?
-  authorId    String
-  tags        String[]  // Technology tags array
-  shares      Int       @default(0)
-  views       Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments    Comment[]
-  likes       Like[]
-  viewsEvents PostView[]
+  id             String   @id @default(cuid())
+  title          String
+  content        String   @db.Text
+  imageUrl       String?
+  authorId       String
+  tags           String[]
+  likesCount     Int      @default(0)
+  commentsCount  Int      @default(0)
+  sharesCount    Int      @default(0)
+  viewsCount     Int      @default(0)
+  engagementScore Float   @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  author         User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments       Comment[]
+  likes          Like[]
+  viewsEvents    PostView[]
+  bookmarks      Bookmark[]
+  feedItems      FeedItem[]
+  techFeedItems  TechnologyFeedItem[]
+  trendingScores TrendingScore[]
+
+  @@index([authorId])
+  @@index([createdAt(sort: Desc)])
+  @@index([engagementScore(sort: Desc)])
 }
 
 model Comment {
@@ -68,10 +84,15 @@ model Comment {
   content   String   @db.Text
   authorId  String
   postId    String
+  parentId  String?
   createdAt DateTime @default(now())
-  
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+
+  @@index([postId, createdAt(sort: Desc)])
 }
 
 model Like {
@@ -79,10 +100,10 @@ model Like {
   userId    String
   postId    String
   createdAt DateTime @default(now())
-  
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, postId])
 }
 
@@ -91,25 +112,71 @@ model Follow {
   followerId  String
   followingId String
   createdAt   DateTime @default(now())
-  
+
   follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
   following   User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
-  
+
   @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model FeedItem {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  score     Float    @default(0)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@unique([userId, postId])
+}
+
+model TechnologyFeedItem {
+  id          String   @id @default(cuid())
+  userId      String
+  postId      String
+  technology  String
+  score       Float    @default(0)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@unique([userId, postId])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
 }
 
 model Notification {
-  id          String   @id @default(cuid())
-  userId      String   // Who receives the notification
-  type        String   // LIKE, FOLLOW, COMMENT
-  actorId     String   // Who performed the action
-  actorName   String   // Denormalized for performance
-  postId      String?  // Optional: if notification is about a post
-  commentId   String?  // Optional: if notification is about a comment
-  read        Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  actorId   String
+  actorName String
+  postId    String?
+  commentId String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, readAt])
 }
 
 model UserActivity {
@@ -120,38 +187,44 @@ model UserActivity {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
 }
 
 model UserTechnologyFollow {
-  id          String   @id @default(cuid())
-  userId      String
-  technology  String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  technology String
+  createdAt  DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, technology])
+  @@index([technology])
 }
 
 model PostView {
-  id         String   @id @default(cuid())
-  postId     String
-  userId     String
-  ipAddress  String?
-  userAgent   String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
 
-  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([postId])
 }
 
 model Badge {
-  id         String   @id @default(cuid())
-  userId     String
-  name       String
-  awardedAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  awardedAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, name])
 }
@@ -165,4 +238,35 @@ model ReputationTransaction {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
+
+model TrendingScore {
+  id           String   @id @default(cuid())
+  postId       String
+  score        Float
+  rank         Int
+  calculatedAt DateTime @default(now())
+
+  post         Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, calculatedAt])
+  @@index([calculatedAt(sort: Desc), rank])
+}
+
+model UserRecommendation {
+  id                String   @id @default(cuid())
+  userId            String
+  recommendedUserId String
+  score             Float
+  reason            String?
+  createdAt         DateTime @default(now())
+
+  user              User     @relation("RecommendedTo", fields: [userId], references: [id], onDelete: Cascade)
+  recommended       User     @relation("RecommendedUser", fields: [recommendedUserId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recommendedUserId])
+  @@index([userId, score(sort: Desc)])
+}
+

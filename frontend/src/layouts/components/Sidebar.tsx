@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Users, Hash, Bookmark, Settings, TrendingUp, Plus } from 'lucide-react'
+import { Home, Users, Hash, Bookmark, Settings, TrendingUp, Plus, Bell } from 'lucide-react'
 import { Button } from '../../components/ui/button'
+import { useUnreadCount } from '../../features/notifications/hooks/useNotifications'
+import { Badge } from '../../components/ui/badge'
 
 const navItems = [
   { icon: Home, label: 'Feed', path: '/feed' },
@@ -8,11 +10,14 @@ const navItems = [
   { icon: Users, label: 'Developers', path: '/developers' },
   { icon: Hash, label: 'Technologies', path: '/technologies' },
   { icon: Bookmark, label: 'Saved', path: '/saved' },
+  { icon: Bell, label: 'Notifications', path: '/notifications' },
   { icon: Settings, label: 'Settings', path: '/settings' },
 ]
 
 export function Sidebar() {
   const location = useLocation()
+  const { data: unreadData } = useUnreadCount()
+  const unreadCount = unreadData?.count ?? 0
 
   return (
     <aside className="w-64 border-r min-h-[calc(100vh-4rem)] p-4 hidden md:block">
@@ -27,6 +32,11 @@ export function Sidebar() {
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
+                {item.path === '/notifications' && unreadCount > 0 && (
+                  <Badge variant="destructive" className="ml-auto">
+                    {unreadCount}
+                  </Badge>
+                )}
               </Button>
             </Link>
           )

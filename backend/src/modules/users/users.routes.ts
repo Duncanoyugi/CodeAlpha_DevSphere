@@ -11,5 +11,6 @@ router.post('/skills', authenticate, UsersController.addSkill);
 router.patch('/skills/:skillId', authenticate, UsersController.updateSkill);
 router.delete('/skills/:skillId', authenticate, UsersController.removeSkill);
 router.get('/search', authenticate, UsersController.searchUsers);
+router.get('/', authenticate, UsersController.getUsers);
 
 export default router;

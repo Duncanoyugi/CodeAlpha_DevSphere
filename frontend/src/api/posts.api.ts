@@ -7,8 +7,13 @@ export const postsApi = {
     return data
   },
 
-  getTrending: async (limit?: number) => {
-    const { data } = await api.get('/feed/trending', { params: { limit } })
+  getTrending: async (params?: { limit?: number; cursor?: string }) => {
+    const { data } = await api.get('/feed/trending', { params: { limit: params?.limit } })
+    return data
+  },
+
+  getDevelopers: async (params?: { limit?: number; cursor?: string }) => {
+    const { data } = await api.get('/feed/developers', { params })
     return data
   },
 
@@ -20,6 +25,19 @@ export const postsApi = {
   createPost: async (input: CreatePostInput) => {
     const { data } = await api.post<Post>('/posts', input)
     return data
+  },
+
+  uploadImage: async (file: File): Promise<{ imageUrl: string }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = async () => {
+        const dataUrl = reader.result as string
+        const { data } = await api.post('/posts/upload', { data: dataUrl })
+        resolve(data)
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
   },
 
   updatePost: async ({ id, ...input }: UpdatePostInput & { id: string }) => {

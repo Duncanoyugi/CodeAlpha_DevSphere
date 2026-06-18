@@ -6,27 +6,28 @@
 
 ## 1. TanStack Query-driven auth (remove App useEffect server loading)
 - [x] Remove `dispatch(getMe())` from `src/App.tsx` (server state bootstrapping eliminated)
-- [ ] Next: implement `useMeQuery()` and wire it into auth/ProtectedRoute/AuthGuard
+- [x] Wire `useMeQuery()` into auth/ProtectedRoute/AuthGuard
 
 ## 2. Axios refresh interceptor contract hardening
-- [ ] Ensure refresh single-flight replay is correct and typed
-- [ ] Prevent `originalRequest` mutation side effects; keep retry marker safe
+- [x] Ensure refresh single-flight replay is correct and typed
+- [x] Prevent `originalRequest` mutation side effects; keep retry marker safe
 
 ## 3. Socket cookie auth (stop passing JWT to socket.io-client)
-- [ ] Refactor `src/services/socket.service.ts` to remove `auth: { token }`
+- [x] Refactor `src/services/socket.service.ts` to remove `auth: { token }`
 - [ ] Remove console logs and type events
 
 ## 4. Real-time cache invalidation
 - [ ] Wire socket events to TanStack Query invalidation
-- [ ] Notification invalidation matches required query keys
+- [x] Notification invalidation matches required query keys
 
 ## 5. Routing polish: lazy + Suspense + skeleton fallback
-- [ ] Refactor `AppRoutes.tsx` to use `React.lazy` per route
-- [ ] Add `<Suspense fallback={<RouteSkeleton/>}>` wrapper
-- [ ] Confirm `/` redirects to `/feed` when authenticated
+- [x] Refactor `AppRoutes.tsx` to use `React.lazy` per route
+- [x] Add `<Suspense fallback={<RouteSkeleton/>}>` wrapper
+- [x] Confirm `/` redirects to `/feed` when authenticated
 
 ## 6. Optimistic updates (mutation correctness audit)
-- [ ] Like/unlike optimistic flip + rollback
+- [x] Like/unlike optimistic flip + rollback (updated to use likesCount)
+- [x] Bookmark toggle optimistic flip + rollback
 - [ ] Follow/unfollow optimistic flip + rollback
 - [ ] Create comment optimistic pending item replacement
 - [ ] Create post optimistic prepend + rollback + scroll-to-top
@@ -40,7 +41,20 @@
 - [ ] Ensure skeletons match final heights (avoid CLS)
 
 ## 9. Verification
-- [ ] Run frontend lint/typecheck/build
+- [x] Run frontend lint/typecheck/build
 - [ ] Validate no secret strings in built bundle
 - [ ] Validate acceptance checklist items
 
+## Completed routes/pages
+- [x] `/feed` - home feed with infinite scroll
+- [x] `/trending` - trending posts page  
+- [x] `/developers` - followed developers feed
+- [x] `/technologies` - technology list page
+- [x] `/saved` - bookmarked posts page
+- [x] `/notifications` - notifications list page
+- [x] `/post/:id` - post detail with comments
+- [x] `/profile/:username` - user profile page
+- [x] `/search` - search users/posts
+- [x] `/technology/:name` - posts by technology
+- [x] `/settings` - settings page
+- [x] `/create-post` - create post with image/video upload

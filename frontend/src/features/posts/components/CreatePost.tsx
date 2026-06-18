@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { X } from 'lucide-react'
+import { X, Image as ImageIcon } from 'lucide-react'
 import { useCreatePost } from '../hooks/useCreatePost'
 import { Button } from '../../../components/ui/button'
 import { Input } from '../../../components/ui/input'
@@ -16,6 +16,8 @@ export function CreatePost() {
   const createPost = useCreatePost()
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const {
     register,
@@ -26,6 +28,7 @@ export function CreatePost() {
     resolver: zodResolver(postSchema),
     defaultValues: {
       tags: [],
+      imageUrl: '',
     },
   })
 
@@ -33,9 +36,30 @@ export function CreatePost() {
     createPost.mutate({
       ...data,
       tags: selectedTags,
+      imageUrl: imageUrl || undefined,
     })
     reset()
     setSelectedTags([])
+    setImageUrl('')
+    setImagePreview(null)
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const result = event.target?.result as string
+        setImagePreview(result)
+        setImageUrl(result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeImage = () => {
+    setImageUrl('')
+    setImagePreview(null)
   }
 
   const addTag = (tag: string) => {
@@ -80,6 +104,43 @@ export function CreatePost() {
               {errors.content && (
                 <p className="text-sm text-destructive">{errors.content.message}</p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="image">Image</Label>
+              <div className="flex items-center gap-4">
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <Label htmlFor="image" className="cursor-pointer">
+                  <Button type="button" variant="outline" asChild>
+                    <span>
+                      <ImageIcon className="h-4 w-4 mr-2" />
+                      Upload Image
+                    </span>
+                  </Button>
+                </Label>
+                {imagePreview && (
+                  <div className="relative h-20 w-20">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-full w-full object-cover rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">

@@ -9,16 +9,23 @@ export interface Post {
   views: number
   createdAt: string
   updatedAt: string
+  // Counts from API
+  likesCount?: number
+  commentsCount?: number
+  viewsCount?: number
+  sharesCount?: number
   // Populated fields for display
   author?: {
     id: string
     username: string
     avatar: string | null
   }
+  // Arrays from legacy API or for optimistic updates
   likes?: string[]
   comments?: { id: string }[]
-  commentsCount?: number
-  isLiked?: boolean
+  // Status flags
+  liked?: boolean
+  bookmarked?: boolean
 }
 
 export interface CreatePostInput {

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, MessageCircle, Share2, Bookmark } from 'lucide-react'
+import { Heart, MessageCircle, Share2, Bookmark, ImageIcon } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar'
 import { Button } from '../../../components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '../../../components/ui/card'
@@ -9,6 +9,7 @@ import { formatDate, getInitials, truncateText } from '../../../lib/utils'
 import type { Post } from '../../../types'
 import { useLikePost } from '../../likes/hooks/useLikePost'
 import { useUnlikePost } from '../../likes/hooks/useUnlikePost'
+import { useToggleBookmark } from '../../bookmarks/hooks/useToggleBookmark'
 
 interface PostCardProps {
   post: Post
@@ -18,9 +19,14 @@ interface PostCardProps {
 export function PostCard({ post, detailed = false }: PostCardProps) {
   const likePost = useLikePost()
   const unlikePost = useUnlikePost()
+  const toggleBookmark = useToggleBookmark()
 
-  const { author, title, content, tags, createdAt, likes, comments } = post
-  const isLiked = useMemo(() => !!post.isLiked, [post.isLiked])
+  const { author, title, content, tags, createdAt } = post
+  const isLiked = useMemo(() => !!post.liked, [post.liked])
+  const isBookmarked = useMemo(() => !!post.bookmarked, [post.bookmarked])
+
+  const likesCount = post.likesCount ?? (Array.isArray(post.likes) ? post.likes.length : 0)
+  const commentsCount = post.commentsCount ?? (Array.isArray(post.comments) ? post.comments.length : 0)
 
   return (
     <Card>
@@ -50,6 +56,20 @@ export function PostCard({ post, detailed = false }: PostCardProps) {
           <p className="text-muted-foreground">
             {detailed ? content : truncateText(content, 200)}
           </p>
+          {post.imageUrl && !detailed && (
+            <img
+              src={post.imageUrl}
+              alt={title}
+              className="mt-3 rounded-md object-cover max-h-96 w-full"
+            />
+          )}
+          {detailed && post.imageUrl && (
+            <img
+              src={post.imageUrl}
+              alt={title}
+              className="mt-3 rounded-md object-cover max-h-[520px] w-full"
+            />
+          )}
         </Link>
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -75,20 +95,25 @@ export function PostCard({ post, detailed = false }: PostCardProps) {
             }}
           >
             <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-            <span>{likes?.length || 0}</span>
+            <span>{likesCount}</span>
           </Button>
           <Link to={`/post/${post.id}`}>
             <Button variant="ghost" size="sm" className="gap-2">
               <MessageCircle className="h-4 w-4" />
-              <span>{comments?.length || 0}</span>
+              <span>{commentsCount}</span>
             </Button>
           </Link>
           <Button variant="ghost" size="sm">
             <Share2 className="h-4 w-4" />
           </Button>
         </div>
-        <Button variant="ghost" size="sm">
-          <Bookmark className="h-4 w-4" />
+        <Button
+          variant="ghost"
+          size="sm"
+          className={isBookmarked ? 'text-primary' : ''}
+          onClick={() => toggleBookmark.mutate(post.id)}
+        >
+          <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
         </Button>
       </CardFooter>
     </Card>

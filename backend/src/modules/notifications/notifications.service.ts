@@ -41,17 +41,18 @@ export class NotificationsService {
     
     return prisma.notification.update({
       where: { id: notificationId },
-      data: { read: true }
+      data: { readAt: new Date() }
     });
   }
   
   static async markAllAsRead(userId: string) {
+    const now = new Date();
     return prisma.notification.updateMany({
       where: {
         userId,
-        read: false
+        readAt: null
       },
-      data: { read: true }
+      data: { readAt: now }
     });
   }
   
@@ -59,7 +60,7 @@ export class NotificationsService {
     return prisma.notification.count({
       where: {
         userId,
-        read: false
+        readAt: null
       }
     });
   }

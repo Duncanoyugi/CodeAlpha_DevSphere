@@ -41,8 +41,9 @@ export function CommentList({ postId }: CommentListProps) {
   return (
     <div className="divide-y">
       {comments.map((comment) => (
-        <CommentItem key={comment.id} comment={comment} />
+        <CommentItem key={comment.id} comment={comment} postId={postId} depth={0} />
       ))}
     </div>
   )
+
 }

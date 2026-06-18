@@ -46,4 +46,9 @@ export const usersApi = {
     const { data } = await api.get<User[]>(`/users/search?q=${query}`)
     return data
   },
+
+  getAllUsers: async () => {
+    const { data } = await api.get<User[]>('/users')
+    return data
+  },
 }

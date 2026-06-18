@@ -29,6 +29,7 @@ import reputationRoutes from './modules/reputation/reputation.routes';
 import searchRoutes from './modules/search/search.routes';
 import technologyRoutes from './modules/technologies/technologies.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
+import bookmarksRoutes from './modules/bookmarks/bookmarks.routes';
 
 
 
@@ -83,6 +84,7 @@ app.use('/api/reputation', reputationRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/technologies', technologyRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api', bookmarksRoutes);
 
 // Health check with service status
 app.get('/health', async (req, res) => {

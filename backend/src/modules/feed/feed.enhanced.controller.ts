@@ -71,12 +71,12 @@ export class EnhancedFeedController {
       // Calculate scores
       const scoredPosts = posts.map(post => ({
         ...post,
-        hotnessScore: FeedRankingAlgorithm.calculateHotnessScore({
-          id: post.id,
-          likes: post._count.likes,
-          comments: post._count.comments,
-          shares: post.shares || 0,
-          views: post.views || 0,
+      hotnessScore: FeedRankingAlgorithm.calculateHotnessScore({
+        id: post.id,
+        likes: post._count.likes,
+        comments: post._count.comments,
+        shares: post.sharesCount || 0,
+        views: post.viewsCount || 0,
           createdAt: post.createdAt,
           authorId: post.author.id,
           authorReputation: post.author.reputation || 0,
@@ -86,8 +86,8 @@ export class EnhancedFeedController {
           id: post.id,
           likes: post._count.likes,
           comments: post._count.comments,
-          shares: post.shares || 0,
-          views: post.views || 0,
+          shares: post.sharesCount || 0,
+          views: post.viewsCount || 0,
           createdAt: post.createdAt,
           authorId: post.author.id,
           authorReputation: post.author.reputation || 0,
@@ -139,7 +139,7 @@ export class EnhancedFeedController {
         // Update post view count
         prisma.post.update({
           where: { id: postId },
-          data: { views: { increment: 1 } }
+          data: { viewsCount: { increment: 1 } }
         });
       }).catch(console.error);
       

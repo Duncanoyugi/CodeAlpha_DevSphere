@@ -11,6 +11,19 @@ export class PostsController {
       res.status(400).json({ message: error.message });
     }
   }
+
+  static async uploadImage(req: AuthRequest, res: Response) {
+    try {
+      const { data } = req.body;
+      if (!data || !data.startsWith('data:image/')) {
+        throw new Error('Invalid image data');
+      }
+      const result = await PostsService.uploadImage(req.userId!, data);
+      res.json(result);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
   
   static async getPost(
     req: AuthRequest & Request<{ id: string }>,

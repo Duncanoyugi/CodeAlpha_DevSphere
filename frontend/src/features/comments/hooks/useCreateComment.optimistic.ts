@@ -8,10 +8,12 @@ export function useCreateCommentOptimistic() {
   const { toast } = useToast()
 
   return useMutation({
-    mutationFn: (vars: { postId: string; content: string }) =>
-      commentsApi.createComment({ postId: vars.postId, content: vars.content }),
+    mutationFn: (vars: { postId: string; content: string; parentId?: string }) =>
+      commentsApi.createComment({ postId: vars.postId, content: vars.content, parentId: vars.parentId }),
 
-    onMutate: async (vars: { postId: string; content: string }) => {
+
+    onMutate: async (vars: { postId: string; content: string; parentId?: string }) => {
+
       await queryClient.cancelQueries({ queryKey: ['comments', vars.postId] })
 
       const prev = queryClient.getQueryData<Comment[]>(['comments', vars.postId])
@@ -34,7 +36,8 @@ export function useCreateCommentOptimistic() {
       return { prev }
     },
 
-    onError: (error: unknown, _vars: { postId: string; content: string }, ctx: { prev?: Comment[] } | undefined) => {
+    onError: (error: unknown, _vars: { postId: string; content: string; parentId?: string }, ctx: { prev?: Comment[] } | undefined) => {
+
       if (ctx?.prev) queryClient.setQueryData(['comments', _vars.postId], ctx.prev)
 
       const message =

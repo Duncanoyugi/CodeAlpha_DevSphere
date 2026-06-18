@@ -12,7 +12,6 @@ export const likesApi = {
   },
 
   getPostLikes: async (postId: string): Promise<Array<{ userId: string }>> => {
-    // backend returns likes with user include; keep it generic until types are formalized
     const { data } = await api.get(`/likes/${postId}`)
     return data
   },

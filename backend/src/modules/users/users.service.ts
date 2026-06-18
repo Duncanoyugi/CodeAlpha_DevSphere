@@ -126,9 +126,22 @@ export class UsersService {
         username: true,
         avatar: true,
         bio: true,
-        experience: true
+        experience: true,
       },
       take: 20
+    });
+  }
+
+  static async getUsers() {
+    return prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        avatar: true,
+        bio: true,
+        experience: true,
+      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 }
