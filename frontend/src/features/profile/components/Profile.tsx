@@ -3,9 +3,11 @@ import { useProfile } from '../hooks/useProfile'
 import { ProfileHeader } from './ProfileHeader'
 import { ProfilePosts } from './ProfilePosts'
 import { SkillsManager } from './SkillsManager'
-import { LoadingSpinner } from '../../../components/common/LoadingSpinner'
+import { FeedSkeleton } from '../../../components/LoadingSkeleton'
+import { EmptyState } from '../../../components/common/EmptyState'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs'
 import { useAuth } from '../../auth/hooks/useAuth'
+import { User } from 'lucide-react'
 
 export function Profile() {
   const { username } = useParams<{ username: string }>()
@@ -15,31 +17,29 @@ export function Profile() {
   const isOwnProfile = currentUser?.username === profile?.username
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    )
+    return <FeedSkeleton />
   }
 
   if (error || !profile) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-destructive">User not found</p>
-      </div>
+      <EmptyState
+        title="User not found"
+        description="We couldn't find a developer with that username."
+        icon={<User className="h-12 w-12" />}
+      />
     )
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <ProfileHeader user={profile} isOwnProfile={isOwnProfile} />
 
-      <Tabs defaultValue="posts">
-        <TabsList>
-          <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="skills">Skills</TabsTrigger>
-          <TabsTrigger value="followers">Followers</TabsTrigger>
-          <TabsTrigger value="following">Following</TabsTrigger>
+      <Tabs defaultValue="posts" className="w-full">
+        <TabsList className="grid w-full grid-cols-4 rounded-xl bg-[var(--muted)] p-1">
+          <TabsTrigger value="posts" className="rounded-lg">Posts</TabsTrigger>
+          <TabsTrigger value="skills" className="rounded-lg">Skills</TabsTrigger>
+          <TabsTrigger value="followers" className="rounded-lg">Followers</TabsTrigger>
+          <TabsTrigger value="following" className="rounded-lg">Following</TabsTrigger>
         </TabsList>
         <TabsContent value="posts" className="mt-6">
           <ProfilePosts userId={profile.id} />
@@ -48,12 +48,18 @@ export function Profile() {
           <SkillsManager userId={profile.id} isOwnProfile={isOwnProfile} />
         </TabsContent>
         <TabsContent value="followers" className="mt-6">
-          {/* Followers list will go here */}
-          <p className="text-muted-foreground">Followers list coming soon</p>
+          <EmptyState
+            title="Followers coming soon"
+            description="This list will show developers who follow this profile."
+            icon={<User className="h-12 w-12" />}
+          />
         </TabsContent>
         <TabsContent value="following" className="mt-6">
-          {/* Following list will go here */}
-          <p className="text-muted-foreground">Following list coming soon</p>
+          <EmptyState
+            title="Following coming soon"
+            description="This list will show developers this profile follows."
+            icon={<User className="h-12 w-12" />}
+          />
         </TabsContent>
       </Tabs>
     </div>

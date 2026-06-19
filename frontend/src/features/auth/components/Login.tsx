@@ -10,6 +10,7 @@ import { Label } from '../../../components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../components/ui/card'
 import { loginSchema, type LoginInput } from '../../../lib/validators'
 import { useToast } from '../../../components/ui/use-toast'
+import { APP_NAME } from '../../../lib/constants'
 
 export function Login() {
   const navigate = useNavigate()
@@ -46,12 +47,15 @@ export function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4">
+      <Card className="w-full max-w-md overflow-hidden">
         <CardHeader className="space-y-1 text-center">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--brand)] text-sm font-bold text-[var(--brand-foreground)]">
+            DS
+          </div>
           <CardTitle className="text-2xl">Welcome back</CardTitle>
           <CardDescription>
-            Sign in to your DevSphere account
+            Sign in to your {APP_NAME} account.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -65,7 +69,7 @@ export function Login() {
                 {...register('email')}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+                <p className="text-sm text-[var(--destructive)]">{errors.email.message}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -77,17 +81,17 @@ export function Login() {
                 {...register('password')}
               />
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-sm text-[var(--destructive)]">{errors.password.message}</p>
               )}
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full rounded-xl" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-center text-sm text-[var(--muted-foreground)]">
               Don't have an account?{' '}
-              <Link to="/register" className="text-primary hover:underline">
+              <Link to="/register" className="font-semibold text-[var(--brand)] transition-colors hover:text-[var(--brand)]/80">
                 Sign up
               </Link>
             </p>

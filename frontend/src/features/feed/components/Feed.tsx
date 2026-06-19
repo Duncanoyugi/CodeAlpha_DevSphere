@@ -4,8 +4,9 @@ import { useDevelopersFeed } from '../hooks/useDevelopersFeed'
 import { FeedPost } from './FeedPost'
 import { FeedSkeleton } from './FeedSkeleton'
 import { EmptyState } from '../../../components/common/EmptyState'
+import { PageHeader } from '../../../components/PageHeader'
 import { Button } from '../../../components/ui/button'
-import { Plus, Bookmark, Users } from 'lucide-react'
+import { Plus, Bookmark, Users, Hash } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface FeedProps {
@@ -38,29 +39,42 @@ export function Feed({ feedType = 'home' }: FeedProps) {
 
   if (error) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-destructive">Failed to load feed. Please try again.</p>
-      </div>
+      <EmptyState
+        title="Feed unavailable"
+        description="Failed to load posts. Please try again."
+        icon={<Hash className="h-12 w-12" />}
+        action={
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        }
+      />
     )
   }
 
   const posts = (data?.pages ?? []).flatMap((page: any) => page.posts || []) || []
 
-  const emptyTitle = isSavedFeed ? 'No saved posts' : isDeveloperFeed ? 'No posts from followed developers' : 'No posts yet'
+  const emptyTitle = isSavedFeed ? 'No saved posts' : isDeveloperFeed ? 'No posts from followed developers' : isTrendingFeed ? 'No trending posts yet' : 'No posts yet'
   const emptyDesc = isSavedFeed 
-    ? 'Save posts to read them later.' 
+    ? 'Save posts to build your reading list.' 
     : isDeveloperFeed
-    ? 'Follow developers to see their posts here.'
-    : 'Follow developers and technologies to see their posts in your feed.'
+      ? 'Follow developers to see their posts here.'
+      : isTrendingFeed
+        ? 'Trending discussions will appear here as the community engages.'
+        : 'Follow developers and technologies to personalize your feed.'
 
   if (posts.length === 0) {
     return (
       <EmptyState
         title={emptyTitle}
         description={emptyDesc}
-        icon={isSavedFeed ? <Bookmark className="h-12 w-12 text-muted-foreground" /> : isDeveloperFeed ? <Users className="h-12 w-12 text-muted-foreground" /> : <Plus className="h-12 w-12 text-muted-foreground" />}
+        icon={isSavedFeed ? <Bookmark className="h-12 w-12" /> : isDeveloperFeed ? <Users className="h-12 w-12" /> : <Plus className="h-12 w-12" />}
         action={
-          isSavedFeed ? undefined : (
+          isSavedFeed ? (
+            <Button variant="outline" onClick={() => navigate('/technologies')}>
+              Browse Technologies
+            </Button>
+          ) : (
             <Button onClick={() => navigate('/search')}>
               Find Developers to Follow
             </Button>
@@ -71,22 +85,38 @@ export function Feed({ feedType = 'home' }: FeedProps) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {posts.map((post) => (
-        <FeedPost key={post.id} post={post} />
-      ))}
-      
-      {hasNextPage && (
-        <div className="flex justify-center py-4">
-          <Button
-            variant="outline"
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-          >
-            {isFetchingNextPage ? 'Loading...' : 'Load More'}
-          </Button>
-        </div>
-      )}
+    <div className="space-y-6">
+      <PageHeader
+        kicker={isTrendingFeed ? 'Trending' : isSavedFeed ? 'Saved' : isDeveloperFeed ? 'Following' : 'Feed'}
+        title={isTrendingFeed ? 'Trending now' : isSavedFeed ? 'Saved posts' : isDeveloperFeed ? 'Developer feed' : 'Home feed'}
+        description={
+          isTrendingFeed
+            ? 'High-signal discussions gaining momentum across DevSphere.'
+            : isSavedFeed
+              ? 'Posts you saved for later reading.'
+              : isDeveloperFeed
+                ? 'Recent updates from developers you follow.'
+                : 'A focused stream of posts from your network.'
+        }
+      />
+      <div className="mx-auto max-w-2xl space-y-4">
+        {posts.map((post) => (
+          <FeedPost key={post.id} post={post} />
+        ))}
+        
+        {hasNextPage && (
+          <div className="flex justify-center py-4">
+            <Button
+              variant="outline"
+              className="rounded-xl px-6"
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? 'Loading...' : 'Load More'}
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

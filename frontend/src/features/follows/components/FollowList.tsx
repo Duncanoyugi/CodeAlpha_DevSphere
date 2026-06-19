@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar'
-import { getInitials } from '../../../lib/utils'
+import { Avatar } from '../../../components/Avatar'
 import { FollowButton } from './FollowButton'
 import type { User } from '../../../types'
 
@@ -12,7 +11,7 @@ interface FollowListProps {
 export function FollowList({ users, title }: FollowListProps) {
   if (users.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] py-8 text-center text-sm text-[var(--muted-foreground)]">
         No {title.toLowerCase()} yet
       </div>
     )
@@ -20,19 +19,16 @@ export function FollowList({ users, title }: FollowListProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold">{title}</h3>
+      <h3 className="font-semibold text-[var(--foreground)]">{title}</h3>
       <div className="space-y-3">
         {users.map((user) => (
-          <div key={user.id} className="flex items-center justify-between">
-            <Link to={`/profile/${user.username}`} className="flex items-center gap-3 hover:underline">
-              <Avatar>
-                <AvatarImage src={user.avatar || undefined} />
-                <AvatarFallback>{getInitials(user.username)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-medium">{user.username}</p>
+          <div key={user.id} className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3">
+            <Link to={`/profile/${user.username}`} className="flex items-center gap-3 hover:text-[var(--brand)]">
+              <Avatar name={user.username} src={user.avatar || null} size="md" />
+              <div className="min-w-0">
+                <p className="font-medium text-[var(--foreground)]">{user.username}</p>
                 {user.bio && (
-                  <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                  <p className="truncate max-w-[200px] text-sm text-[var(--muted-foreground)]">
                     {user.bio}
                   </p>
                 )}

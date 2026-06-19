@@ -44,10 +44,10 @@ export function CommentForm({ postId, parentId }: CommentFormProps) {
         placeholder="Write a comment..."
         {...register('content')}
         onFocus={() => setIsFocused(true)}
-        className="min-h-[60px]"
+        className="min-h-[70px] rounded-xl"
       />
       {errors.content && (
-        <p className="text-sm text-destructive">{errors.content.message}</p>
+        <p className="text-sm text-[var(--destructive)]">{errors.content.message}</p>
       )}
 
       {isFocused && (
@@ -56,6 +56,7 @@ export function CommentForm({ postId, parentId }: CommentFormProps) {
             type="button"
             variant="ghost"
             size="sm"
+            className="rounded-xl"
             onClick={() => {
               reset()
               setIsFocused(false)
@@ -66,6 +67,7 @@ export function CommentForm({ postId, parentId }: CommentFormProps) {
           <Button
             type="submit"
             size="sm"
+            className="rounded-xl"
             disabled={createComment.isPending}
           >
             {createComment.isPending ? 'Posting...' : 'Post Comment'}

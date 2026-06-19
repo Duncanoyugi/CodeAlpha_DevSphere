@@ -22,25 +22,26 @@ export function PostActions({
   onBookmark,
 }: PostActionsProps) {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2">
       <Button
         variant="ghost"
         size="sm"
-        className={`gap-2 ${isLiked ? 'text-red-500' : ''}`}
+        className="h-9 rounded-lg gap-2"
         onClick={onLike}
+        aria-pressed={isLiked}
       >
-        <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-        <span>{likesCount}</span>
+        <Heart className={isLiked ? 'h-4 w-4 fill-current text-[var(--brand)]' : 'h-4 w-4 text-[var(--muted-foreground)]'} />
+        <span className="tabular-nums text-sm">{likesCount}</span>
       </Button>
-      <Button variant="ghost" size="sm" className="gap-2" onClick={onComment}>
-        <MessageCircle className="h-4 w-4" />
-        <span>{commentsCount}</span>
+      <Button variant="ghost" size="sm" className="h-9 rounded-lg gap-2" onClick={onComment} aria-label={`View ${commentsCount} comments`}>
+        <MessageCircle className="h-4 w-4 text-[var(--muted-foreground)]" />
+        <span className="tabular-nums text-sm">{commentsCount}</span>
       </Button>
-      <Button variant="ghost" size="sm" onClick={onShare}>
-        <Share2 className="h-4 w-4" />
+      <Button variant="ghost" size="sm" className="h-9 rounded-lg" onClick={onShare} aria-label="Share post">
+        <Share2 className="h-4 w-4 text-[var(--muted-foreground)]" />
       </Button>
-      <Button variant="ghost" size="sm" onClick={onBookmark}>
-        <Bookmark className="h-4 w-4" />
+      <Button variant="ghost" size="sm" className="h-9 rounded-lg" onClick={onBookmark} aria-label="Save post">
+        <Bookmark className="h-4 w-4 text-[var(--muted-foreground)]" />
       </Button>
     </div>
   )

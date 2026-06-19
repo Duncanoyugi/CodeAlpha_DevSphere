@@ -1,19 +1,20 @@
 import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { useSkills, useAddSkill, useRemoveSkill } from '../hooks/useSkills'
-import { Button } from '../../../components/ui/button'
-import { Badge } from '../../../components/ui/badge'
-import { Input } from '../../../components/ui/input'
-import { Label } from '../../../components/ui/label'
+import { useSkills, useAddSkill, useRemoveSkill } from '../hooks/useSkills.ts'
+import { Button } from '../../../components/ui/button.tsx'
+import { Badge } from '../../../components/Badge.tsx'
+import { Input } from '../../../components/ui/input.tsx'
+import { Label } from '../../../components/ui/label.tsx'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../components/ui/select'
-import { LoadingSpinner } from '../../../components/common/LoadingSpinner'
-import { SKILL_LEVELS } from '../../../lib/constants'
+} from '../../../components/ui/select.tsx'
+import { FeedSkeleton } from '../../../components/LoadingSkeleton.tsx'
+import { EmptyState } from '../../../components/common/index.ts'
+import { SKILL_LEVELS } from '../../../lib/constants.ts'
 
 interface SkillsManagerProps {
   userId: string
@@ -43,11 +44,7 @@ export function SkillsManager({ userId, isOwnProfile }: SkillsManagerProps) {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoadingSpinner />
-      </div>
-    )
+    return <FeedSkeleton />
   }
 
   const skillList = skills || []
@@ -57,47 +54,53 @@ export function SkillsManager({ userId, isOwnProfile }: SkillsManagerProps) {
       {skillList.length > 0 ? (
         <div className="flex flex-wrap gap-2">
           {skillList.map((skill) => (
-            <Badge key={skill.id} variant="secondary" className="gap-1 px-3 py-1">
-              <span className="font-medium">{skill.skill}</span>
-              <span className="text-muted-foreground">({skill.level})</span>
+            <Badge key={skill.id} variant="neutral" className="gap-2 rounded-full px-3 py-1">
+              <span className="font-medium text-[var(--foreground)]">{skill.skill}</span>
+              <span className="text-[var(--muted-foreground)]">({skill.level})</span>
               {isOwnProfile && (
                 <button
+                  type="button"
                   onClick={() => removeSkill.mutate(skill.id)}
-                  className="ml-1 hover:text-destructive"
+                  className="rounded-full p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)] hover:text-[var(--destructive-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  aria-label={`Remove ${skill.skill}`}
                   disabled={removeSkill.isPending}
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
               )}
             </Badge>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">No skills added yet</p>
+        <EmptyState
+          title="No skills added yet"
+          description={isOwnProfile ? 'Add skills to show your technical strengths.' : 'This developer has not added skills yet.'}
+          className="min-h-[180px] py-8"
+        />
       )}
 
       {isOwnProfile && (
         <div className="mt-4">
           {isAdding ? (
-            <div className="flex items-end gap-3">
+            <div className="flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-[var(--background)] p-4 sm:flex-row sm:items-end">
               <div className="flex-1 space-y-1">
-                <Label htmlFor="skill-input" className="text-xs">
+                <Label htmlFor="skill-input" className="text-xs uppercase tracking-[0.16em]">
                   Technology
                 </Label>
                 <Input
                   id="skill-input"
                   placeholder="e.g., React"
                   value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  className="h-9"
+                  onChange={(event) => setNewSkill(event.target.value)}
+                  className="h-10 rounded-xl"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="level-select" className="text-xs">
+              <div className="space-y-1 sm:w-40">
+                <Label htmlFor="level-select" className="text-xs uppercase tracking-[0.16em]">
                   Level
                 </Label>
                 <Select value={newLevel} onValueChange={setNewLevel}>
-                  <SelectTrigger className="h-9 w-[130px]">
+                  <SelectTrigger className="h-10 rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -109,9 +112,10 @@ export function SkillsManager({ userId, isOwnProfile }: SkillsManagerProps) {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex gap-2 pb-0.5">
+              <div className="flex gap-2">
                 <Button
                   size="sm"
+                  className="rounded-xl"
                   onClick={handleAddSkill}
                   disabled={!newSkill.trim() || addSkill.isPending}
                 >
@@ -120,6 +124,7 @@ export function SkillsManager({ userId, isOwnProfile }: SkillsManagerProps) {
                 <Button
                   size="sm"
                   variant="ghost"
+                  className="rounded-xl"
                   onClick={() => setIsAdding(false)}
                 >
                   Cancel
@@ -130,9 +135,10 @@ export function SkillsManager({ userId, isOwnProfile }: SkillsManagerProps) {
             <Button
               variant="outline"
               size="sm"
+              className="rounded-xl"
               onClick={() => setIsAdding(true)}
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               Add Skill
             </Button>
           )}

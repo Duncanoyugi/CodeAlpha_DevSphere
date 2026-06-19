@@ -1,40 +1,39 @@
 import { useParams } from 'react-router-dom'
+import { Hash } from 'lucide-react'
 import { usePostsByTag } from '../hooks/useTechnologies'
-import { PostCard } from '../../posts/components/PostCard'
-import { LoadingSpinner } from '../../../components/common/LoadingSpinner'
+import { PostCard } from '../../../components/PostCard'
+import { FeedSkeleton } from '../../../components/LoadingSkeleton'
 import { EmptyState } from '../../../components/common/EmptyState'
+import { PageHeader } from '../../../components/PageHeader'
 
 export function TechnologyPage() {
   const { name } = useParams<{ name: string }>()
   const { data: posts, isLoading, error } = usePostsByTag(name!)
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    )
+    return <FeedSkeleton />
   }
 
   if (error) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-destructive">Failed to load posts</p>
-      </div>
+      <EmptyState
+        title="Posts unavailable"
+        description="Failed to load posts for this technology."
+        icon={<Hash className="h-12 w-12" />}
+      />
     )
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">#{name}</h1>
-        <p className="text-muted-foreground">
-          {posts?.length || 0} posts about {name}
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        kicker="Technology"
+        title={`#${name}`}
+        description={`${posts?.length || 0} posts about ${name}.`}
+      />
 
       {posts && posts.length > 0 ? (
-        <div className="space-y-4">
+        <div className="mx-auto max-w-2xl space-y-4">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
@@ -42,8 +41,8 @@ export function TechnologyPage() {
       ) : (
         <EmptyState
           title="No posts yet"
-          description={`No posts found for #${name}`}
-          className="py-12"
+          description={`No posts found for #${name}.`}
+          icon={<Hash className="h-12 w-12" />}
         />
       )}
     </div>

@@ -1,10 +1,10 @@
 import { useSearchUsers } from '../hooks/useSearch'
-import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar'
-import { Badge } from '../../../components/ui/badge'
-import { LoadingSpinner } from '../../../components/common/LoadingSpinner'
+import { Avatar } from '../../../components/Avatar'
+import { ExperienceBadge } from '../../../components/Badge'
+import { FeedSkeleton } from '../../../components/LoadingSkeleton'
 import { EmptyState } from '../../../components/common/EmptyState'
 import { Link } from 'react-router-dom'
-import { getInitials } from '../../../lib/utils'
+import { Search } from 'lucide-react'
 
 interface SearchResultsProps {
   query: string
@@ -14,18 +14,16 @@ export function SearchResults({ query }: SearchResultsProps) {
   const { data: users, isLoading, error } = useSearchUsers(query)
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoadingSpinner />
-      </div>
-    )
+    return <FeedSkeleton />
   }
 
   if (error) {
     return (
-      <p className="text-center text-sm text-destructive">
-        Failed to load search results
-      </p>
+      <EmptyState
+        title="Search unavailable"
+        description="Failed to load search results."
+        icon={<Search className="h-12 w-12" />}
+      />
     )
   }
 
@@ -35,6 +33,7 @@ export function SearchResults({ query }: SearchResultsProps) {
         title="No results found"
         description={`No results found for "${query}"`}
         className="py-8"
+        icon={<Search className="h-12 w-12" />}
       />
     )
   }
@@ -45,20 +44,17 @@ export function SearchResults({ query }: SearchResultsProps) {
         <Link
           key={user.id}
           to={`/profile/${user.username}`}
-          className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+          className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-[var(--accent)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         >
-          <Avatar>
-            <AvatarImage src={user.avatar || undefined} />
-            <AvatarFallback>{getInitials(user.username)}</AvatarFallback>
-          </Avatar>
+          <Avatar name={user.username} src={user.avatar || null} size="md" />
           <div className="flex-1 min-w-0">
-            <p className="font-medium">{user.username}</p>
+            <p className="truncate font-medium text-[var(--foreground)]">{user.username}</p>
             {user.bio && (
-              <p className="text-sm text-muted-foreground truncate">{user.bio}</p>
+              <p className="truncate text-sm text-[var(--muted-foreground)]">{user.bio}</p>
             )}
           </div>
           {user.experience && (
-            <Badge variant="secondary">{user.experience}</Badge>
+            <ExperienceBadge level={user.experience} />
           )}
         </Link>
       ))}

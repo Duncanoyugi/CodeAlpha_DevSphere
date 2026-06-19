@@ -1,3 +1,4 @@
+import { CheckCircle2, UserPlus } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { useFollow, useUnfollow, useIsFollowing } from '../hooks/useFollow'
 import { useAuth } from '../../auth/hooks/useAuth'
@@ -37,8 +38,24 @@ export function FollowButton({ userId, size = 'default', variant = 'default' }: 
       variant={isFollowing ? 'outline' : variant}
       onClick={handleClick}
       disabled={isLoading}
+      className="rounded-xl"
+      aria-pressed={isFollowing}
     >
-      {isLoading ? 'Loading...' : isFollowing ? 'Unfollow' : 'Follow'}
+      {isLoading ? (
+        'Loading...'
+      ) : isFollowing ? (
+        <>
+          <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+          Following
+        </>
+      ) : (
+        <>
+          <UserPlus className="h-4 w-4" aria-hidden="true" />
+          Follow
+        </>
+      )}
     </Button>
   )
 }
+
+export type { FollowButtonProps }

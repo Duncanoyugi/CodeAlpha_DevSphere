@@ -28,12 +28,12 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center">
-          <h2 className="mb-2 text-2xl font-bold">Something went wrong</h2>
-          <p className="mb-4 text-muted-foreground">
+        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-center">
+          <h2 className="mb-2 text-2xl font-bold text-[var(--foreground)]">Something went wrong</h2>
+          <p className="mb-4 text-sm text-[var(--muted-foreground)]">
             {this.state.error?.message || 'An unexpected error occurred'}
           </p>
-          <Button onClick={() => window.location.reload()}>
+          <Button className="rounded-xl" onClick={() => window.location.reload()}>
             Refresh Page
           </Button>
         </div>

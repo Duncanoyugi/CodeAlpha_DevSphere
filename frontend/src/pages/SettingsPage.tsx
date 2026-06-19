@@ -1,21 +1,31 @@
 import { useAuth } from '../features/auth/hooks/useAuth'
 import { EditProfile } from '../features/profile/components/EditProfile'
+import { PageHeader } from '../components/PageHeader'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { Settings } from 'lucide-react'
 
 export function SettingsPage() {
   const { user } = useAuth()
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Manage your profile and account settings</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        kicker="Account"
+        title="Settings"
+        description="Manage your profile details and how other developers see your experience level."
+      />
 
       <Card>
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>Update your profile information</CardDescription>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent)] text-[var(--accent-foreground)]">
+              <Settings className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <CardTitle>Profile</CardTitle>
+              <CardDescription>Update your public bio and experience level.</CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <EditProfile

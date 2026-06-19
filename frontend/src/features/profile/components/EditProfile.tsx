@@ -47,17 +47,17 @@ export function EditProfile({ onSuccess, defaultValues }: EditProfileProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="bio">Bio</Label>
         <Textarea
           id="bio"
           placeholder="Tell us about yourself..."
-          className="min-h-[100px]"
+          className="min-h-[120px]"
           {...register('bio')}
         />
         {errors.bio && (
-          <p className="text-sm text-destructive">{errors.bio.message}</p>
+          <p className="text-sm text-[var(--destructive)]">{errors.bio.message}</p>
         )}
       </div>
 
@@ -79,13 +79,13 @@ export function EditProfile({ onSuccess, defaultValues }: EditProfileProps) {
           </SelectContent>
         </Select>
         {errors.experience && (
-          <p className="text-sm text-destructive">{errors.experience.message}</p>
+          <p className="text-sm text-[var(--destructive)]">{errors.experience.message}</p>
         )}
       </div>
 
       <Button
         type="submit"
-        className="w-full"
+        className="w-full rounded-xl"
         disabled={updateProfile.isPending}
       >
         {updateProfile.isPending ? 'Saving...' : 'Save Changes'}

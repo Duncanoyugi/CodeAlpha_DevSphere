@@ -1,68 +1,55 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { UserPlus, CheckCircle2 } from 'lucide-react'
-import { Button } from '../components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
-import { getInitials } from '../lib/utils'
-import { usersApi } from '../api/users.api'
-import { useFollow } from '../features/follows/hooks/useFollow'
-import { useIsFollowing } from '../features/follows/hooks/useFollow'
-import type { User } from '../types'
+import { PageHeader } from '../components/PageHeader.tsx'
+import { Card, CardContent } from '../components/ui/card.tsx'
+import { Avatar } from '../components/Avatar.tsx'
+import { ExperienceBadge } from '../components/Badge.tsx'
+import { FollowButton } from '../features/follows/components/FollowButton.tsx'
+import { DeveloperSkeleton } from '../components/LoadingSkeleton.tsx'
+import { EmptyState } from '../components/common/index.ts'
+import { Users } from 'lucide-react'
+import { usersApi } from '../api/users.api.ts'
+import type { User } from '../types/index.ts'
 
-function DevUserCard({ user, currentUserId }: { user: User; currentUserId: string }) {
-  const follow = useFollow()
-  const { data: followState } = useIsFollowing(user.id)
+interface DevUserCardProps {
+  user: User
+  currentUserId: string
+}
 
+function DevUserCard({ user, currentUserId }: DevUserCardProps) {
   const isSelf = user.id === currentUserId
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center gap-3">
-        <Link to={`/profile/${user.username}`}>
-          <Avatar>
-            <AvatarImage src={user.avatar || undefined} />
-            <AvatarFallback>{getInitials(user.username)}</AvatarFallback>
-          </Avatar>
+    <Card className="transition-colors hover:bg-[var(--accent)]/40">
+      <CardContent className="flex items-center gap-4 p-5">
+        <Link to={`/profile/${user.username}`} aria-label={`Open ${user.username} profile`}>
+          <Avatar name={user.username} src={user.avatar || null} size="lg" />
         </Link>
-        <div className="flex-1">
-          <Link to={`/profile/${user.username}`} className="hover:underline">
-            <span className="font-semibold">{user.username}</span>
+        <div className="min-w-0 flex-1">
+          <Link to={`/profile/${user.username}`} className="block truncate font-semibold text-[var(--foreground)] transition-colors hover:text-[var(--brand)]">
+            {user.username}
           </Link>
           {user.bio && (
-            <p className="text-sm text-muted-foreground line-clamp-2">{user.bio}</p>
+            <p className="mt-1 line-clamp-2 text-sm leading-6 text-[var(--muted-foreground)]">{user.bio}</p>
+          )}
+          {user.experience && (
+            <div className="mt-3">
+              <ExperienceBadge level={user.experience} />
+            </div>
           )}
         </div>
-        {!isSelf && (
-          <Button
-            size="sm"
-            variant={followState?.following ? 'outline' : 'default'}
-            onClick={() => follow.mutate(user.id)}
-            disabled={follow.isPending}
-          >
-            {followState?.following ? (
-              <>
-                <CheckCircle2 className="h-4 w-4 mr-2" /> Following
-              </>
-            ) : (
-              <>
-                <UserPlus className="h-4 w-4 mr-2" /> Follow
-              </>
-            )}
-          </Button>
+        {isSelf ? (
+          <span className="rounded-full bg-[var(--muted)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted-foreground)]">You</span>
+        ) : (
+          <FollowButton userId={user.id} size="sm" variant="outline" />
         )}
-      </CardHeader>
-      {user.experience && (
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{user.experience}</p>
-        </CardContent>
-      )}
+      </CardContent>
     </Card>
   )
 }
 
 export function DevelopersPage() {
-  const { data: users, isLoading, error } = useQuery({
+  const { data: users, isLoading, error } = useQuery<User[]>({
     queryKey: ['users', 'all'],
     queryFn: () => usersApi.getAllUsers(),
   })
@@ -73,26 +60,37 @@ export function DevelopersPage() {
   })
 
   if (isLoading) {
-    return <p className="text-muted-foreground">Loading developers...</p>
+    return <DeveloperSkeleton />
   }
 
   if (error) {
-    return <p className="text-destructive">Failed to load developers.</p>
+    return (
+      <EmptyState
+        title="Developers unavailable"
+        description="Failed to load the developer directory."
+        icon={<Users className="h-12 w-12" />}
+      />
+    )
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Developers</h1>
-        <p className="text-muted-foreground">Discover and follow developers in the community.</p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        kicker="Directory"
+        title="Developers"
+        description="Discover engineers, compare experience levels, and follow people worth learning from."
+      />
 
       <div className="space-y-3">
         {(users ?? []).map((user) => (
           <DevUserCard key={user.id} user={user} currentUserId={me?.id || ''} />
         ))}
         {(users ?? []).length === 0 && (
-          <p className="text-muted-foreground">No developers found yet.</p>
+          <EmptyState
+            title="No developers found"
+            description="The directory is empty for now."
+            icon={<Users className="h-12 w-12" />}
+          />
         )}
       </div>
     </div>

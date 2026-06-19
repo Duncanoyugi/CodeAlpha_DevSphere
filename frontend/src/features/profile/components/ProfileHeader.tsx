@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom'
-import { Calendar } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar'
+import { Avatar } from '../../../components/Avatar'
 import { Button } from '../../../components/ui/button'
-import { Badge } from '../../../components/ui/badge'
-import { FollowButton } from '../../follows/components/FollowButton'
-import { formatDate, getInitials } from '../../../lib/utils'
+import { ExperienceBadge } from '../../../components/Badge'
+import { FollowButton } from '../../../features/follows/components/FollowButton'
+import { formatDate } from '../../../lib/utils'
 import { useFollowCounts } from '../../follows/hooks/useFollow'
 import type { User } from '../../../types'
 
@@ -17,50 +16,36 @@ export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
   const { data: counts } = useFollowCounts(user.id)
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-start gap-6">
-        <Avatar className="h-24 w-24">
-          <AvatarImage src={user.avatar || undefined} />
-          <AvatarFallback className="text-2xl">
-            {getInitials(user.username)}
-          </AvatarFallback>
-        </Avatar>
+    <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <Avatar name={user.username} src={user.avatar || null} size="xl" />
         <div className="flex-1">
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold">{user.username}</h1>
-              {user.experience && (
-                <Badge variant="secondary" className="mt-1">
-                  {user.experience}
-                </Badge>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)]">{user.username}</h1>
+                {user.experience && <ExperienceBadge level={user.experience} />}
+              </div>
+              {user.bio && (
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">{user.bio}</p>
               )}
             </div>
             {isOwnProfile ? (
-              <Button variant="outline" asChild>
+              <Button variant="outline" className="rounded-xl" asChild>
                 <Link to="/settings">Edit Profile</Link>
               </Button>
             ) : (
               <FollowButton userId={user.id} />
             )}
           </div>
-          {user.bio && (
-            <p className="mt-2 text-muted-foreground">{user.bio}</p>
-          )}
-          <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <span>
-              <span className="font-semibold text-foreground">
-                {counts?.followers || 0}
-              </span>{' '}
-              followers
+          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-[var(--muted-foreground)]">
+            <span className="tabular-nums">
+              <span className="font-semibold text-[var(--foreground)]">{counts?.followers || 0}</span> followers
             </span>
-            <span>
-              <span className="font-semibold text-foreground">
-                {counts?.following || 0}
-              </span>{' '}
-              following
+            <span className="tabular-nums">
+              <span className="font-semibold text-[var(--foreground)]">{counts?.following || 0}</span> following
             </span>
-            <span className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em]">
               Joined {formatDate(user.createdAt)}
             </span>
           </div>

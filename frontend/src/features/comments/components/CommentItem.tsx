@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Reply, Trash2 } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar'
+import { Avatar } from '../../../components/Avatar'
 import { Button } from '../../../components/ui/button'
-import { formatDate, getInitials } from '../../../lib/utils'
+import { formatDate } from '../../../lib/utils'
 import { useAuth } from '../../auth/hooks/useAuth'
 import { useDeleteComment } from '../hooks/useComments'
 import type { Comment } from '../../../types'
@@ -26,35 +26,32 @@ export function CommentItem({ comment, postId, depth = 0 }: CommentItemProps) {
   return (
     <div className="flex gap-3 py-3">
       {author && (
-        <Link to={`/profile/${author.username}`}>
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={author.avatar || undefined} />
-            <AvatarFallback>{getInitials(author.username)}</AvatarFallback>
-          </Avatar>
+        <Link to={`/profile/${author.username}`} aria-label={`Open ${author.username} profile`}>
+          <Avatar name={author.username} src={author.avatar || null} size="sm" />
         </Link>
       )}
 
-      <div className="flex-1 space-y-1">
-        <div className="flex items-center gap-2">
+      <div className="flex-1 space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
           {author && (
-            <Link to={`/profile/${author.username}`} className="hover:underline">
-              <span className="font-semibold text-sm">{author.username}</span>
+            <Link to={`/profile/${author.username}`} className="font-semibold text-sm text-[var(--foreground)] transition-colors hover:text-[var(--brand)]">
+              {author.username}
             </Link>
           )}
-          <span className="text-xs text-muted-foreground">{formatDate(comment.createdAt)}</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--muted-foreground)]">{formatDate(comment.createdAt)}</span>
         </div>
 
-        <p className="text-sm">{comment.content}</p>
+        <p className="text-sm leading-6 text-[var(--foreground)]">{comment.content}</p>
 
         <div className="flex items-center gap-2">
           {user && !isAuthor && depth < 2 && (
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => setReplying((v) => !v)}
+              className="h-7 rounded-lg px-2 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              onClick={() => setReplying((value) => !value)}
             >
-              <Reply className="h-3 w-3 mr-1" />
+              <Reply className="h-3.5 w-3.5" aria-hidden="true" />
               Reply
             </Button>
           )}
@@ -63,10 +60,10 @@ export function CommentItem({ comment, postId, depth = 0 }: CommentItemProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 px-2 text-xs text-muted-foreground hover:text-destructive"
+              className="h-7 rounded-lg px-2 text-xs text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
               onClick={() => deleteComment.mutate(comment.id)}
             >
-              <Trash2 className="h-3 w-3 mr-1" />
+              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
               Delete
             </Button>
           )}
@@ -91,4 +88,3 @@ export function CommentItem({ comment, postId, depth = 0 }: CommentItemProps) {
     </div>
   )
 }
-

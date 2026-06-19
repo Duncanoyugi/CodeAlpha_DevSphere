@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { TechnologyBadge } from './TechnologyBadge'
 import { Input } from '../../../components/ui/input'
-import { Badge } from '../../../components/ui/badge'
+import { TagChip } from '../../../components/TagChip'
 import { POST_TAGS } from '../../../lib/constants'
 
 interface TechnologyListProps {
@@ -24,24 +24,14 @@ export function TechnologyList({ selectedTags = [], onSelect, limit }: Technolog
         <Input
           placeholder="Search technologies..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="h-9"
+          onChange={(event) => setSearch(event.target.value)}
+          className="h-10 rounded-xl"
         />
       )}
 
       <div className="flex flex-wrap gap-2">
         {selectedTags.map((tag) => (
-          <Badge key={tag} variant="default" className="gap-1">
-            #{tag}
-            {onSelect && (
-              <button
-                onClick={() => onSelect(tag)}
-                className="ml-1 hover:text-destructive"
-              >
-                ×
-              </button>
-            )}
-          </Badge>
+          <TagChip key={tag} tag={tag} selected onClick={() => onSelect?.(tag)} />
         ))}
         {filteredTags.map((tag) => (
           <TechnologyBadge

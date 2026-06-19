@@ -1,9 +1,14 @@
+import { PageHeader } from '../components/PageHeader'
 import { NotificationList } from '../features/notifications/components/NotificationList'
 
 export function NotificationsPage() {
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Notifications</h1>
+    <div className="space-y-6">
+      <PageHeader
+        kicker="Activity"
+        title="Notifications"
+        description="Track likes, comments, follows, and badges from the DevSphere community."
+      />
       <NotificationList />
     </div>
   )

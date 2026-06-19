@@ -1,5 +1,4 @@
-import { useState, useRef } from 'react'
-import type { ChangeEvent } from 'react'
+import { useState, useRef, type ChangeEvent, type DragEvent } from 'react'
 import { Upload } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -7,7 +6,7 @@ interface ImageUploadProps {
   onUpload: (file: File) => void
   className?: string
   accept?: string
-  maxSize?: number // in MB
+  maxSize?: number
 }
 
 export function ImageUpload({ onUpload, className, accept = 'image/*', maxSize = 5 }: ImageUploadProps) {
@@ -31,29 +30,29 @@ export function ImageUpload({ onUpload, className, accept = 'image/*', maxSize =
     onUpload(file)
   }
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
     if (file) {
       handleFile(file)
     }
   }
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+  const handleDrag = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (event.type === 'dragenter' || event.type === 'dragover') {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (event.type === 'dragleave') {
       setDragActive(false)
     }
   }
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
     setDragActive(false)
 
-    const file = e.dataTransfer.files?.[0]
+    const file = event.dataTransfer.files?.[0]
     if (file) {
       handleFile(file)
     }
@@ -62,8 +61,8 @@ export function ImageUpload({ onUpload, className, accept = 'image/*', maxSize =
   return (
     <div
       className={cn(
-        'relative rounded-lg border-2 border-dashed p-8 text-center transition-colors',
-        dragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25',
+        'relative rounded-2xl border-2 border-dashed p-8 text-center transition-colors',
+        dragActive ? 'border-[var(--brand)] bg-[var(--accent)]/40' : 'border-[var(--border)] bg-[var(--background)]',
         className
       )}
       onDragEnter={handleDrag}
@@ -79,15 +78,15 @@ export function ImageUpload({ onUpload, className, accept = 'image/*', maxSize =
         className="absolute inset-0 cursor-pointer opacity-0"
       />
       <div className="flex flex-col items-center gap-2">
-        <Upload className="h-10 w-10 text-muted-foreground" />
+        <Upload className="h-10 w-10 text-[var(--muted-foreground)]" />
         <div className="text-sm">
-          <span className="font-semibold text-primary">Click to upload</span>
+          <span className="font-semibold text-[var(--brand)]">Click to upload</span>
           {' or drag and drop'}
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-[var(--muted-foreground)]">
           PNG, JPG, GIF up to {maxSize}MB
         </p>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-[var(--destructive)]">{error}</p>}
       </div>
     </div>
   )

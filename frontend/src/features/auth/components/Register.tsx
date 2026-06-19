@@ -10,6 +10,7 @@ import { Label } from '../../../components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../components/ui/card'
 import { registerSchema, type RegisterInput } from '../../../lib/validators'
 import { useToast } from '../../../components/ui/use-toast'
+import { APP_NAME } from '../../../lib/constants'
 
 export function Register() {
   const navigate = useNavigate()
@@ -30,7 +31,7 @@ export function Register() {
     try {
       await dispatch(register(data)).unwrap()
       toast({
-        title: 'Welcome to DevSphere!',
+        title: `Welcome to ${APP_NAME}!`,
         description: 'Your account has been created successfully.',
       })
       navigate('/feed')
@@ -46,12 +47,15 @@ export function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4">
+      <Card className="w-full max-w-md overflow-hidden">
         <CardHeader className="space-y-1 text-center">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--brand)] text-sm font-bold text-[var(--brand-foreground)]">
+            DS
+          </div>
           <CardTitle className="text-2xl">Create an account</CardTitle>
           <CardDescription>
-            Join the developer community
+            Join the {APP_NAME} developer community.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -64,7 +68,7 @@ export function Register() {
                 {...registerField('username')}
               />
               {errors.username && (
-                <p className="text-sm text-destructive">{errors.username.message}</p>
+                <p className="text-sm text-[var(--destructive)]">{errors.username.message}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -76,7 +80,7 @@ export function Register() {
                 {...registerField('email')}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+                <p className="text-sm text-[var(--destructive)]">{errors.email.message}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -88,17 +92,17 @@ export function Register() {
                 {...registerField('password')}
               />
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-sm text-[var(--destructive)]">{errors.password.message}</p>
               )}
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full rounded-xl" disabled={isLoading}>
               {isLoading ? 'Creating account...' : 'Create Account'}
             </Button>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-center text-sm text-[var(--muted-foreground)]">
               Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:underline">
+              <Link to="/login" className="font-semibold text-[var(--brand)] transition-colors hover:text-[var(--brand)]/80">
                 Sign in
               </Link>
             </p>
