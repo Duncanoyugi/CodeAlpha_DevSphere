@@ -6,9 +6,18 @@ import type { User } from '../../../types'
 interface FollowListProps {
   users: User[]
   title: string
+  isLoading?: boolean
 }
 
-export function FollowList({ users, title }: FollowListProps) {
+export function FollowList({ users, title, isLoading = false }: FollowListProps) {
+  if (isLoading) {
+    return (
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] py-8 text-center text-sm text-[var(--muted-foreground)]">
+        Loading...
+      </div>
+    )
+  }
+
   if (users.length === 0) {
     return (
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] py-8 text-center text-sm text-[var(--muted-foreground)]">

@@ -13,6 +13,7 @@ export function useDeletePost() {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ['feed'] })
       queryClient.invalidateQueries({ queryKey: ['posts', id] })
+      queryClient.invalidateQueries({ queryKey: ['profile'] })
       toast({
         title: 'Post deleted',
         description: 'Your post has been removed.',

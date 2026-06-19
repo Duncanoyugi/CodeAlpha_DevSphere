@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Outlet, Routes, Route } from 'react-router-dom'
 import { MainLayout } from '../layouts/MainLayout.tsx'
 import { AuthLayout } from '../layouts/AuthLayout.tsx'
 import { AuthGuard } from '../features/auth/components/AuthGuard.tsx'
@@ -22,6 +22,14 @@ const SavedPage = lazy(() => import('../pages/SavedPage.tsx').then((m) => ({ def
 const NotificationsPage = lazy(() => import('../pages/NotificationsPage.tsx').then((m) => ({ default: m.NotificationsPage })))
 const DevelopersPage = lazy(() => import('../pages/DevelopersPage.tsx').then((m) => ({ default: m.DevelopersPage })))
 
+function PublicLayout() {
+  return (
+    <div className="min-h-screen bg-[var(--background)]">
+      <Outlet />
+    </div>
+  )
+}
+
 export function AppRoutes() {
   return (
     <Suspense fallback={<RouteSkeleton />}>
@@ -31,8 +39,12 @@ export function AppRoutes() {
           <Route path="/register" element={<Register />} />
         </Route>
 
-        <Route element={<MainLayout />}>
+        <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
+        </Route>
+
+        <Route element={<MainLayout />}>
           <Route element={<AuthGuard />}>
             <Route path="/feed" element={<Feed feedType="home" />} />
             <Route path="/trending" element={<TrendingPage />} />

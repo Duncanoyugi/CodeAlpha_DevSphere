@@ -60,7 +60,7 @@ export function Feed({ feedType = 'home' }: FeedProps) {
     : isDeveloperFeed
       ? 'Follow developers to see their posts here.'
       : isTrendingFeed
-        ? 'Trending discussions will appear here as the community engages.'
+        ? 'Newest posts will appear here first.'
         : 'Follow developers and technologies to personalize your feed.'
 
   if (posts.length === 0) {
@@ -91,7 +91,7 @@ export function Feed({ feedType = 'home' }: FeedProps) {
         title={isTrendingFeed ? 'Trending now' : isSavedFeed ? 'Saved posts' : isDeveloperFeed ? 'Developer feed' : 'Home feed'}
         description={
           isTrendingFeed
-            ? 'High-signal discussions gaining momentum across DevSphere.'
+            ? 'Latest discussions from the DevSphere community.'
             : isSavedFeed
               ? 'Posts you saved for later reading.'
               : isDeveloperFeed

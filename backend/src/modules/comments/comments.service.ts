@@ -89,7 +89,18 @@ export class CommentsService {
       throw new Error('Unauthorized');
     }
 
-    return prisma.comment.delete({ where: { id: commentId } });
+    return prisma.$transaction(async (tx) => {
+      await tx.comment.delete({ where: { id: commentId } });
+
+      if ('commentsCount' in comment.post) {
+        await (tx.post as any).update({
+          where: { id: comment.post.id },
+          data: { commentsCount: Math.max(0, (comment.post as any).commentsCount - 1) },
+        });
+      }
+
+      return { deleted: true };
+    });
   }
 
   static async getPostComments(postId: string) {

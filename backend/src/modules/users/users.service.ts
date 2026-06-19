@@ -1,5 +1,19 @@
 import prisma from '../../config/database';
 
+function normalizeOptionalUrl(value?: string) {
+  if (!value || !value.trim()) return undefined;
+  const trimmed = value.trim();
+  try {
+    const url = new URL(trimmed);
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      throw new Error('Unsupported URL protocol');
+    }
+    return url.toString();
+  } catch {
+    throw new Error(`${value} must be a valid http(s) URL`);
+  }
+}
+
 export class UsersService {
   static async getProfile(userId: string) {
     const user = await prisma.user.findUnique({
@@ -61,10 +75,18 @@ export class UsersService {
     bio?: string;
     experience?: string;
     avatar?: string;
+    githubUrl?: string;
+    linkedInUrl?: string;
+    portfolioUrl?: string;
   }) {
     const user = await prisma.user.update({
       where: { id: userId },
-      data,
+      data: {
+        ...data,
+        githubUrl: normalizeOptionalUrl(data.githubUrl),
+        linkedInUrl: normalizeOptionalUrl(data.linkedInUrl),
+        portfolioUrl: normalizeOptionalUrl(data.portfolioUrl),
+      },
       include: { skills: true }
     });
     
@@ -72,11 +94,21 @@ export class UsersService {
     return userWithoutPassword;
   }
   
+  static async getSkills(userId: string) {
+    return prisma.userSkill.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+  
   static async addSkill(userId: string, skill: string, level: string) {
+    const normalizedSkill = skill.trim();
+    if (!normalizedSkill) throw new Error('Skill is required');
+    
     return prisma.userSkill.create({
       data: {
         userId,
-        skill,
+        skill: normalizedSkill,
         level
       }
     });

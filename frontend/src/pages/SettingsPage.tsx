@@ -32,6 +32,9 @@ export function SettingsPage() {
             defaultValues={{
               bio: user?.bio || '',
               experience: user?.experience || 'Junior',
+              githubUrl: user?.githubUrl || '',
+              linkedInUrl: user?.linkedInUrl || '',
+              portfolioUrl: user?.portfolioUrl || '',
             }}
           />
         </CardContent>

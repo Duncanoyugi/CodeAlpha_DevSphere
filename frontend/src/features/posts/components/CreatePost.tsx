@@ -1,8 +1,9 @@
 import { useState, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Image as ImageIcon, X } from 'lucide-react'
+import { FileText, Video, X } from 'lucide-react'
 import { useCreatePost } from '../hooks/useCreatePost'
+import { postsApi } from '../../../api/posts.api'
 import { Button } from '../../../components/ui/button'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
@@ -14,56 +15,126 @@ import { Avatar } from '../../../components/Avatar'
 import { postSchema, type PostInput } from '../../../lib/validators'
 import { POST_TAGS } from '../../../lib/constants'
 import { useAuth } from '../../auth/hooks/useAuth'
+import { useToast } from '../../../components/ui/use-toast'
+
+type PostFormInput = PostInput & {
+  mediaUrl?: string
+  mediaType?: string
+  mediaSize?: number
+}
+
+const allowedMediaTypes = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'text/plain',
+]
 
 export function CreatePost() {
   const { user } = useAuth()
+  const { toast } = useToast()
   const createPost = useCreatePost()
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [githubRepoUrl, setGithubRepoUrl] = useState('')
+  const [liveDemoUrl, setLiveDemoUrl] = useState('')
+  const [mediaUrl, setMediaUrl] = useState('')
+  const [mediaType, setMediaType] = useState('')
+  const [mediaSize, setMediaSize] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<PostInput>({
+  } = useForm<PostFormInput>({
     resolver: zodResolver(postSchema),
     defaultValues: {
       tags: [],
       imageUrl: '',
+      githubRepoUrl: '',
+      liveDemoUrl: '',
     },
   })
 
-  const onSubmit = (data: PostInput) => {
+  const onSubmit = (data: PostFormInput) => {
     createPost.mutate({
       ...data,
       tags: selectedTags,
-      imageUrl: imageUrl || undefined,
+      imageUrl: data.mediaType?.startsWith('image/') ? mediaUrl || undefined : undefined,
+      mediaUrl: mediaUrl || undefined,
+      mediaType: mediaType || undefined,
+      mediaSize: mediaSize || undefined,
+      githubRepoUrl: githubRepoUrl.trim() || undefined,
+      liveDemoUrl: liveDemoUrl.trim() || undefined,
     })
     reset()
     setSelectedTags([])
-    setImageUrl('')
-    setImagePreview(null)
+    setGithubRepoUrl('')
+    setLiveDemoUrl('')
+    removeMedia()
   }
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleMediaChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (loadEvent) => {
-        const result = loadEvent.target?.result as string
-        setImagePreview(result)
-        setImageUrl(result)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+
+    if (!allowedMediaTypes.includes(file.type)) {
+      toast({
+        title: 'Unsupported file',
+        description: 'Upload an image, video, PDF, or supported document.',
+        variant: 'destructive',
+      })
+      event.target.value = ''
+      return
+    }
+
+    if (file.size > 100 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Media files must be 100MB or smaller.',
+        variant: 'destructive',
+      })
+      event.target.value = ''
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      const uploaded = await postsApi.uploadImage(file)
+      setMediaUrl(uploaded.mediaUrl)
+      setMediaType(uploaded.mediaType)
+      setMediaSize(uploaded.mediaSize)
+      toast({
+        title: 'Media uploaded',
+        description: `${file.name} is ready to attach to your post.`,
+      })
+    } catch (error: unknown) {
+      toast({
+        title: 'Upload failed',
+        description: (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to upload media.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsUploading(false)
+      event.target.value = ''
     }
   }
 
-  const removeImage = () => {
-    setImageUrl('')
-    setImagePreview(null)
+  const removeMedia = () => {
+    setMediaUrl('')
+    setMediaType('')
+    setMediaSize(0)
   }
 
   const addTag = (tag: string) => {
@@ -127,36 +198,69 @@ export function CreatePost() {
               )}
             </div>
 
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="githubRepoUrl">GitHub Repo</Label>
+                <Input
+                  id="githubRepoUrl"
+                  type="url"
+                  placeholder="https://github.com/you/project"
+                  value={githubRepoUrl}
+                  onChange={(event) => setGithubRepoUrl(event.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="liveDemoUrl">Live Demo</Label>
+                <Input
+                  id="liveDemoUrl"
+                  type="url"
+                  placeholder="https://your-demo.dev"
+                  value={liveDemoUrl}
+                  onChange={(event) => setLiveDemoUrl(event.target.value)}
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="image">Image</Label>
+              <Label htmlFor="media">Attach image, video, or document</Label>
               <div className="flex flex-wrap items-center gap-4">
                 <Input
-                  id="image"
+                  id="media"
                   type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
+                  accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.txt"
+                  onChange={handleMediaChange}
                   className="hidden"
                 />
-                <Label htmlFor="image">
-                  <Button type="button" variant="outline" asChild>
+                <Label htmlFor="media">
+                  <Button type="button" variant="outline" asChild disabled={isUploading}>
                     <span>
-                      <ImageIcon className="h-4 w-4" aria-hidden="true" />
-                      Upload Image
+                      {isUploading ? 'Uploading...' : 'Upload Media'}
                     </span>
                   </Button>
                 </Label>
-                {imagePreview && (
-                  <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-[var(--border)]">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="h-full w-full object-cover"
-                    />
+                {mediaUrl && (
+                  <div className="relative flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--background)] p-2">
+                    {mediaType?.startsWith('image/') && (
+                      <img src={mediaUrl} alt="Media preview" className="h-16 w-16 rounded-lg object-cover" />
+                    )}
+                    {mediaType?.startsWith('video/') && (
+                      <video src={mediaUrl} controls className="h-16 rounded-lg" />
+                    )}
+                    {(mediaType === 'application/pdf' || mediaType?.includes('word') || mediaType?.includes('powerpoint') || mediaType === 'text/plain') && (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--muted)] text-[var(--muted-foreground)]">
+                        {mediaType === 'application/pdf' ? <FileText className="h-6 w-6" /> : <Video className="h-6 w-6" />}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-[var(--foreground)]">{mediaType || 'Attached media'}</p>
+                      <p className="text-xs text-[var(--muted-foreground)]">{Math.round((mediaSize || 0) / 1024 / 1024 * 10) / 10} MB</p>
+                    </div>
                     <button
                       type="button"
-                      onClick={removeImage}
+                      onClick={removeMedia}
                       className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--destructive)] text-[var(--destructive-foreground)] shadow-[var(--shadow-elevated)]"
-                      aria-label="Remove image"
+                      aria-label="Remove media"
                     >
                       <X className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
@@ -217,8 +321,8 @@ export function CreatePost() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full rounded-xl" disabled={createPost.isPending}>
-              {createPost.isPending ? 'Creating...' : 'Create Post'}
+            <Button type="submit" className="w-full rounded-xl" disabled={createPost.isPending || isUploading}>
+              {createPost.isPending ? 'Creating...' : isUploading ? 'Uploading...' : 'Create Post'}
             </Button>
           </form>
         </CardContent>

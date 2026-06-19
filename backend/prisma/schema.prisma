@@ -11,8 +11,11 @@ model User {
   username      String    @unique
   email         String    @unique
   passwordHash  String
-  avatar        String?
-  bio           String?   @db.Text
+  githubUrl       String?
+  linkedInUrl     String?
+  portfolioUrl    String?
+  avatar          String?
+  bio             String?   @db.Text
   experience    String?
   reputation    Int       @default(0)
   lastActiveAt  DateTime?
@@ -55,6 +58,11 @@ model Post {
   title          String
   content        String   @db.Text
   imageUrl       String?
+  mediaUrl       String?
+  mediaType      String?
+  mediaSize      Int?
+  githubRepoUrl  String?
+  liveDemoUrl    String?
   authorId       String
   tags           String[]
   likesCount     Int      @default(0)

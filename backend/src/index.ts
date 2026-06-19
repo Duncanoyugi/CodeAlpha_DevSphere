@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -66,6 +67,7 @@ app.use(cors({
 }));
 app.use(morgan('combined'));
 app.use(express.json({ limit: '20mb' }));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads', 'public')));
 app.use(cookieParser());
 
 // Rate limiting for auth routes

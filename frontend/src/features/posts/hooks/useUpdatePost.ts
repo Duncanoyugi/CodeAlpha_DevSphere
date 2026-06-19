@@ -12,7 +12,9 @@ export function useUpdatePost() {
       postsApi.updatePost({ id, ...data }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['posts', data.id] })
+      queryClient.invalidateQueries({ queryKey: ['posts', 'user', data.authorId] })
       queryClient.invalidateQueries({ queryKey: ['feed'] })
+      queryClient.invalidateQueries({ queryKey: ['profile'] })
       toast({
         title: 'Post updated',
         description: 'Your post has been updated successfully.',

@@ -61,7 +61,7 @@ export function CommentItem({ comment, postId, depth = 0 }: CommentItemProps) {
               variant="ghost"
               size="sm"
               className="h-7 rounded-lg px-2 text-xs text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
-              onClick={() => deleteComment.mutate(comment.id)}
+              onClick={() => deleteComment.mutate({ commentId: comment.id, postId })}
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
               Delete

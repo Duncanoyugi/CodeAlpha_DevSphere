@@ -63,6 +63,16 @@ export class UsersController {
     }
   }
   
+  static async getSkills(req: AuthRequest & Request<{ userId?: string }>, res: Response) {
+    try {
+      const userId = req.params.userId || req.userId;
+      const skills = await UsersService.getSkills(userId!);
+      res.json(skills);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+  
   static async searchUsers(req: Request, res: Response) {
     try {
       const { q } = req.query;

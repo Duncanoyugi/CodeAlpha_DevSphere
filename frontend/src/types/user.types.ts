@@ -2,6 +2,9 @@ export interface User {
   id: string
   username: string
   email: string
+  githubUrl?: string
+  linkedInUrl?: string
+  portfolioUrl?: string
   avatar?: string
   bio?: string
   experience?: string
@@ -22,4 +25,7 @@ export interface UpdateProfileInput {
   bio?: string
   experience?: string
   avatar?: string
+  githubUrl?: string
+  linkedInUrl?: string
+  portfolioUrl?: string
 }

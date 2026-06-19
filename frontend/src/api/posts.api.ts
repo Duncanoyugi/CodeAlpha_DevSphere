@@ -27,17 +27,15 @@ export const postsApi = {
     return data
   },
 
-  uploadImage: async (file: File): Promise<{ imageUrl: string }> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = async () => {
-        const dataUrl = reader.result as string
-        const { data } = await api.post('/posts/upload', { data: dataUrl })
-        resolve(data)
-      }
-      reader.onerror = reject
-      reader.readAsDataURL(file)
+  uploadImage: async (file: File): Promise<{ imageUrl?: string; mediaUrl: string; mediaType: string; mediaSize: number }> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await api.post('/posts/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     })
+    return data
   },
 
   updatePost: async ({ id, ...input }: UpdatePostInput & { id: string }) => {

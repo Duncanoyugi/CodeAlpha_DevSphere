@@ -7,13 +7,20 @@ import { FeedSkeleton } from '../../../components/LoadingSkeleton'
 import { EmptyState } from '../../../components/common/EmptyState'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs'
 import { useAuth } from '../../auth/hooks/useAuth'
+import { useFollowers, useFollowing } from '../../follows/hooks/useFollow'
+import { FollowList } from '../../follows/components/FollowList'
 import { User } from 'lucide-react'
+import type { User as UserProfile } from '../../../types'
 
 export function Profile() {
   const { username } = useParams<{ username: string }>()
   const { user: currentUser } = useAuth()
   const { data: profile, isLoading, error } = useProfile(username)
+  const { data: followers } = useFollowers(profile?.id || '')
+  const { data: following } = useFollowing(profile?.id || '')
 
+  const followerUsers: UserProfile[] = (followers || []).map((follow) => follow.follower).filter(Boolean) as UserProfile[]
+  const followingUsers: UserProfile[] = (following || []).map((follow) => follow.following).filter(Boolean) as UserProfile[]
   const isOwnProfile = currentUser?.username === profile?.username
 
   if (isLoading) {
@@ -48,18 +55,10 @@ export function Profile() {
           <SkillsManager userId={profile.id} isOwnProfile={isOwnProfile} />
         </TabsContent>
         <TabsContent value="followers" className="mt-6">
-          <EmptyState
-            title="Followers coming soon"
-            description="This list will show developers who follow this profile."
-            icon={<User className="h-12 w-12" />}
-          />
+          <FollowList users={followerUsers} title="Followers" isLoading={followers === undefined} />
         </TabsContent>
         <TabsContent value="following" className="mt-6">
-          <EmptyState
-            title="Following coming soon"
-            description="This list will show developers this profile follows."
-            icon={<User className="h-12 w-12" />}
-          />
+          <FollowList users={followingUsers} title="Following" isLoading={following === undefined} />
         </TabsContent>
       </Tabs>
     </div>

@@ -74,25 +74,15 @@ export class FeedService {
   }
   
   static async getTrendingFeed(limit: number = 20) {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
     const posts = await prisma.post.findMany({
-      where: {
-        createdAt: { gte: sevenDaysAgo }
-      },
       include: {
         author: true,
         _count: {
           select: { likes: true, comments: true }
         }
       },
-      orderBy: [
-        { likes: { _count: 'desc' } },
-        { comments: { _count: 'desc' } },
-        { createdAt: 'desc' }
-      ],
-      take: limit
+      orderBy: { createdAt: 'desc' },
+      take: Math.max(1, Math.min(50, limit))
     });
 
     return posts.map((p: any) => ({

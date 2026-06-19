@@ -33,6 +33,24 @@ export function useCreateCommentOptimistic() {
         return [optimistic as any, ...list]
       })
 
+      queryClient.setQueriesData<Array<{ posts?: Array<{ id?: string; commentsCount?: number }> }>>({ queryKey: ['feed'] }, (old) => {
+        if (!old) return old
+        return old.map((page) => ({
+          ...page,
+          posts: page.posts?.map((post) => post.id === vars.postId
+            ? { ...post, commentsCount: (post.commentsCount ?? 0) + 1 }
+            : post),
+        }))
+      })
+
+      queryClient.setQueriesData<{ commentsCount?: number }>({ queryKey: ['posts'] }, (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          commentsCount: (old.commentsCount ?? 0) + 1,
+        }
+      })
+
       return { prev }
     },
 

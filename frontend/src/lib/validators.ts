@@ -11,11 +11,15 @@ export const loginSchema = z.object({
   password: z.string().min(6),
 })
 
+const optionalHttpUrl = z.string().trim().url().regex(/^https?:\/\//i).or(z.literal('')).optional()
+
 export const postSchema = z.object({
   title: z.string().min(3).max(200),
   content: z.string().min(10).max(5000),
   tags: z.array(z.string()).max(5),
   imageUrl: z.string().optional(),
+  githubRepoUrl: optionalHttpUrl,
+  liveDemoUrl: optionalHttpUrl,
 })
 
 export const commentSchema = z.object({
@@ -29,6 +33,9 @@ export const profileSchema = z.object({
   bio: z.string().max(500).optional(),
   experience: z.string().optional(),
   avatar: z.string().url().optional(),
+  githubUrl: optionalHttpUrl,
+  linkedInUrl: optionalHttpUrl,
+  portfolioUrl: optionalHttpUrl,
 })
 
 export type RegisterInput = z.infer<typeof registerSchema>

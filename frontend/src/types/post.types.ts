@@ -3,6 +3,11 @@ export interface Post {
   title: string
   content: string
   imageUrl: string | null
+  mediaUrl: string | null
+  mediaType: string | null
+  mediaSize: number | null
+  githubRepoUrl: string | null
+  liveDemoUrl: string | null
   authorId: string
   tags: string[]
   shares: number
@@ -33,10 +38,18 @@ export interface CreatePostInput {
   content: string
   tags: string[]
   imageUrl?: string
+  mediaUrl?: string
+  mediaType?: string
+  mediaSize?: number
+  githubRepoUrl?: string
+  liveDemoUrl?: string
 }
 
 export interface UpdatePostInput {
   title?: string
   content?: string
   tags?: string[]
+  imageUrl?: string
+  githubRepoUrl?: string
+  liveDemoUrl?: string
 }

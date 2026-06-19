@@ -14,6 +14,18 @@ export class PostsController {
 
   static async uploadImage(req: AuthRequest, res: Response) {
     try {
+      const file = (req as any).file;
+      if (file) {
+        const mediaUrl = `/uploads/${file.filename}`;
+        const imageUrl = file.mimetype.startsWith('image/') ? mediaUrl : undefined;
+        return res.json({
+          imageUrl,
+          mediaUrl,
+          mediaType: file.mimetype,
+          mediaSize: file.size,
+        });
+      }
+
       const { data } = req.body;
       if (!data || !data.startsWith('data:image/')) {
         throw new Error('Invalid image data');
