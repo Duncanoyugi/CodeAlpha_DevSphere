@@ -32,7 +32,7 @@ export const commentSchema = z.object({
 export const profileSchema = z.object({
   bio: z.string().max(500).optional(),
   experience: z.string().optional(),
-  avatar: z.string().url().optional(),
+  avatar: z.string().optional(),
   githubUrl: optionalHttpUrl,
   linkedInUrl: optionalHttpUrl,
   portfolioUrl: optionalHttpUrl,

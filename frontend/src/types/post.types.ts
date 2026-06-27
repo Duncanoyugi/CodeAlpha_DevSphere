@@ -14,6 +14,7 @@ export interface Post {
   views: number
   createdAt: string
   updatedAt: string
+  repostsCount?: number
   // Counts from API
   likesCount?: number
   commentsCount?: number
@@ -31,6 +32,12 @@ export interface Post {
   // Status flags
   liked?: boolean
   bookmarked?: boolean
+  reposted?: boolean
+  repostedBy?: {
+    id: string
+    username: string
+    avatar: string | null
+  } | null
 }
 
 export interface CreatePostInput {

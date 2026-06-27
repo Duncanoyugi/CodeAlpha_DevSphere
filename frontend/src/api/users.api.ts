@@ -22,6 +22,15 @@ export const usersApi = {
     return data
   },
 
+  uploadAvatar: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await api.post<{ avatarUrl: string }>('/users/avatar/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
+  },
+
   addSkill: async (skill: string, level: string) => {
     const { data } = await api.post<UserSkill>('/users/skills', { skill, level })
     return data

@@ -199,6 +199,13 @@ export class PostsService {
             include: { author: true },
             orderBy: { createdAt: 'desc' },
           },
+          reposts: {
+            include: {
+              user: {
+                select: { id: true, username: true, avatar: true },
+              },
+            },
+          },
         },
       });
     });
@@ -217,7 +224,14 @@ export class PostsService {
         comments: {
           include: { author: true },
           orderBy: { createdAt: 'desc' }
-        }
+        },
+        reposts: {
+          include: {
+            user: {
+              select: { id: true, username: true, avatar: true },
+            },
+          },
+        },
       }
     });
     
@@ -274,6 +288,13 @@ export class PostsService {
           include: { author: true },
           orderBy: { createdAt: 'desc' },
         },
+        reposts: {
+          include: {
+            user: {
+              select: { id: true, username: true, avatar: true },
+            },
+          },
+        },
       }
     });
   }
@@ -302,6 +323,13 @@ export class PostsService {
         bookmarks: true,
         comments: {
           include: { author: true }
+        },
+        reposts: {
+          include: {
+            user: {
+              select: { id: true, username: true, avatar: true },
+            },
+          },
         }
       },
       orderBy: { createdAt: 'desc' }
@@ -351,6 +379,13 @@ export class PostsService {
         comments: {
           include: { author: true },
           take: 5
+        },
+        reposts: {
+          include: {
+            user: {
+              select: { id: true, username: true, avatar: true },
+            },
+          },
         }
       },
       orderBy: { createdAt: 'desc' }

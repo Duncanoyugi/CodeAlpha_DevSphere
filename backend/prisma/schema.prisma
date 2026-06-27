@@ -39,6 +39,7 @@ model User {
   techFeedItems      TechnologyFeedItem[]
   recommendations    UserRecommendation[]  @relation("RecommendedTo")
   recommendedTo      UserRecommendation[]  @relation("RecommendedUser")
+  reposts            Repost[]
 }
 
 model UserSkill {
@@ -68,6 +69,7 @@ model Post {
   likesCount     Int      @default(0)
   commentsCount  Int      @default(0)
   sharesCount    Int      @default(0)
+  repostsCount   Int      @default(0)
   viewsCount     Int      @default(0)
   engagementScore Float   @default(0)
   createdAt      DateTime @default(now())
@@ -81,6 +83,7 @@ model Post {
   feedItems      FeedItem[]
   techFeedItems  TechnologyFeedItem[]
   trendingScores TrendingScore[]
+  reposts        Repost[]
 
   @@index([authorId])
   @@index([createdAt(sort: Desc)])
@@ -276,5 +279,19 @@ model UserRecommendation {
 
   @@unique([userId, recommendedUserId])
   @@index([userId, score(sort: Desc)])
+}
+
+model Repost {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId])
 }
 

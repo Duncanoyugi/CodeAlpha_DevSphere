@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react'
+import { useState, useRef, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FileText, Video, X } from 'lucide-react'
@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui
 import { PageHeader } from '../../../components/PageHeader'
 import { TagChip } from '../../../components/TagChip'
 import { Avatar } from '../../../components/Avatar'
+import { EmojiPicker } from '../../../components/EmojiPicker'
 import { postSchema, type PostInput } from '../../../lib/validators'
 import { POST_TAGS } from '../../../lib/constants'
 import { useAuth } from '../../auth/hooks/useAuth'
@@ -51,12 +52,16 @@ export function CreatePost() {
   const [mediaType, setMediaType] = useState('')
   const [mediaSize, setMediaSize] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
+  const contentRef = useRef<HTMLTextAreaElement>(null)
+  const [cursorPos, setCursorPos] = useState(0)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<PostFormInput>({
     resolver: zodResolver(postSchema),
     defaultValues: {
@@ -66,6 +71,8 @@ export function CreatePost() {
       liveDemoUrl: '',
     },
   })
+
+  const contentValue = watch('content', '')
 
   const onSubmit = (data: PostFormInput) => {
     createPost.mutate({
@@ -151,6 +158,22 @@ export function CreatePost() {
 
   const canAddTag = Boolean(tagInput.trim()) && !selectedTags.includes(tagInput.trim().replace(/^#/, '')) && selectedTags.length < 5
 
+  const insertEmoji = (emoji: string) => {
+    const textarea = contentRef.current
+    if (!textarea) return
+    const start = textarea.selectionStart ?? cursorPos
+    const end = textarea.selectionEnd ?? cursorPos
+    const current = contentValue
+    const next = current.slice(0, start) + emoji + current.slice(end)
+    setValue('content', next, { shouldDirty: true })
+    const newPos = start + emoji.length
+    setTimeout(() => {
+      textarea.selectionStart = newPos
+      textarea.selectionEnd = newPos
+      textarea.focus()
+    }, 0)
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -187,12 +210,30 @@ export function CreatePost() {
 
             <div className="space-y-2">
               <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                placeholder="Share your knowledge..."
-                className="min-h-[220px]"
-                {...register('content')}
-              />
+              <div className="relative">
+                <Textarea
+                  id="content"
+                  placeholder="Share your knowledge..."
+                  className="min-h-[220px] pr-12"
+                  {...register('content')}
+                  ref={(el) => {
+                    contentRef.current = el
+                    register('content').ref(el)
+                  }}
+                  onSelect={() => {
+                    if (contentRef.current) setCursorPos(contentRef.current.selectionStart ?? 0)
+                  }}
+                  onClick={() => {
+                    if (contentRef.current) setCursorPos(contentRef.current.selectionStart ?? 0)
+                  }}
+                  onKeyUp={() => {
+                    if (contentRef.current) setCursorPos(contentRef.current.selectionStart ?? 0)
+                  }}
+                />
+                <div className="absolute right-2 top-2">
+                  <EmojiPicker onSelect={insertEmoji} />
+                </div>
+              </div>
               {errors.content && (
                 <p className="text-sm text-[var(--destructive)]">{errors.content.message}</p>
               )}

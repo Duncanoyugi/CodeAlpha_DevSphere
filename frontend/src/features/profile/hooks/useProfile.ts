@@ -24,12 +24,37 @@ export function useUpdateProfile() {
         description: 'Your profile has been updated successfully.',
       })
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: 'Error',
-        description: error.response?.data?.message || 'Failed to update profile',
+        description: (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update profile',
         variant: 'destructive',
       })
+    },
+  })
+}
+
+export function useUploadAvatar() {
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+
+  return useMutation({
+    mutationFn: usersApi.uploadAvatar,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] })
+      toast({
+        title: 'Avatar updated',
+        description: 'Your profile picture has been updated.',
+      })
+      return data
+    },
+    onError: (error: unknown) => {
+      toast({
+        title: 'Upload failed',
+        description: (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to upload avatar',
+        variant: 'destructive',
+      })
+      throw error
     },
   })
 }

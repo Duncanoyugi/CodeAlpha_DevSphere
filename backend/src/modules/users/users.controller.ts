@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { UsersService } from './users.service';
 import { AuthRequest } from '../../middleware/auth';
+import { upload } from '../../middleware/upload';
 
 export class UsersController {
   static async getProfile(req: AuthRequest, res: Response) {
@@ -29,6 +30,25 @@ export class UsersController {
       res.json(profile);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  }
+
+  static async uploadAvatar(req: AuthRequest, res: Response) {
+    try {
+      const file = (req as any).file;
+      if (file) {
+        const avatarUrl = `/uploads/${file.filename}`;
+        return res.json({ avatarUrl });
+      }
+
+      const { data } = req.body;
+      if (!data || !data.startsWith('data:image/')) {
+        throw new Error('Invalid image data');
+      }
+      const result = await UsersService.uploadAvatar(req.userId!, data);
+      res.json(result);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message || 'Upload failed' });
     }
   }
   

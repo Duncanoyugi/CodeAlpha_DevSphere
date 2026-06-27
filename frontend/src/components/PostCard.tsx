@@ -1,8 +1,14 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Bookmark, ExternalLink, Heart, Link as LinkIcon, MessageCircle, Share2 } from 'lucide-react'
+import { Bookmark, ExternalLink, Heart, Link as LinkIcon, MessageCircle, MoreHorizontal, RefreshCw, Share2 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu'
 import { Avatar } from './Avatar'
 import { TagChip } from './TagChip'
 import { formatDate, truncateText } from '../lib/utils'
@@ -10,7 +16,22 @@ import type { Post } from '../types'
 import { useLikePost } from '../features/likes/hooks/useLikePost'
 import { useUnlikePost } from '../features/likes/hooks/useUnlikePost'
 import { useToggleBookmark } from '../features/bookmarks/hooks/useToggleBookmark'
+import { useToggleRepost } from '../features/reposts/hooks/useRepost'
+import { useDeletePost } from '../features/posts/hooks/useDeletePost'
+import { useAuth } from '../features/auth/hooks/useAuth'
 import { useToast } from './ui/use-toast'
+import { CommentList } from '../features/comments/components/CommentList'
+import { CommentForm } from '../features/comments/components/CommentForm'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog'
 
 interface PostCardProps {
   post: Post
@@ -22,15 +43,25 @@ export function PostCard({ post, detailed = false, compact = false }: PostCardPr
   const likePost = useLikePost()
   const unlikePost = useUnlikePost()
   const toggleBookmark = useToggleBookmark()
+  const toggleRepost = useToggleRepost()
+  const deletePost = useDeletePost()
+  const { user } = useAuth()
   const { toast } = useToast()
 
   const { author, title, content, tags, createdAt, githubRepoUrl, liveDemoUrl } = post
   const initialLiked = useMemo(() => !!post.liked, [post.liked])
   const initialBookmarked = useMemo(() => !!post.bookmarked, [post.bookmarked])
+  const initialReposted = useMemo(() => !!post.reposted, [post.reposted])
   const [isLiked, setIsLiked] = useState(initialLiked)
   const [isBookmarked, setIsBookmarked] = useState(initialBookmarked)
+  const [isReposted, setIsReposted] = useState(initialReposted)
   const [likesCount, setLikesCount] = useState(post.likesCount ?? (Array.isArray(post.likes) ? post.likes.length : 0))
+  const [repostsCount, setRepostsCount] = useState(post.repostsCount ?? 0)
   const commentsCount = post.commentsCount ?? (Array.isArray(post.comments) ? post.comments.length : 0)
+  const [showComments, setShowComments] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
+  const isAuthor = author && user?.id === author.id
 
   const handleToggleLike = () => {
     if (isLiked) {
@@ -46,6 +77,19 @@ export function PostCard({ post, detailed = false, compact = false }: PostCardPr
   const handleToggleBookmark = () => {
     toggleBookmark.mutate(post.id)
     setIsBookmarked((value) => !value)
+  }
+
+  const handleToggleRepost = () => {
+    toggleRepost.mutate(post.id, {
+      onSuccess: (data: { reposted: boolean }) => {
+        setIsReposted(data.reposted)
+        setRepostsCount((count) => data.reposted ? count + 1 : Math.max(0, count - 1))
+        toast({
+          title: data.reposted ? 'Reposted' : 'Repost removed',
+          description: data.reposted ? 'This post has been added to your profile.' : 'Your repost has been removed.',
+        })
+      },
+    })
   }
 
   const handleShare = async () => {
@@ -76,6 +120,15 @@ export function PostCard({ post, detailed = false, compact = false }: PostCardPr
     }
   }
 
+  const handleDelete = () => {
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDelete = () => {
+    setShowDeleteDialog(false)
+    deletePost.mutate(post.id)
+  }
+
   const bodyText = detailed ? content : truncateText(content, compact ? 160 : 220)
 
   return (
@@ -100,7 +153,45 @@ export function PostCard({ post, detailed = false, compact = false }: PostCardPr
             {formatDate(createdAt)}
           </p>
         </div>
+        {isAuthor && !detailed && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link to={`/post/${post.id}`} className="cursor-pointer">
+                  Edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-[var(--destructive)] focus:text-[var(--destructive)]"
+                onSelect={() => handleDelete()}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
+
+      {post.repostedBy && !detailed && (
+        <div className="mx-5 mb-2 flex items-center gap-2">
+          <RefreshCw className="h-3.5 w-3.5 text-[var(--muted-foreground)]" aria-hidden="true" />
+          <span className="text-xs text-[var(--muted-foreground)]">
+            {post.repostedBy.username} reposted
+          </span>
+        </div>
+      )}
+
+      {isReposted && !detailed && (
+        <div className="mx-5 mb-2 flex items-center gap-2">
+          <RefreshCw className="h-3.5 w-3.5 text-[var(--brand)]" aria-hidden="true" />
+          <span className="text-xs font-medium text-[var(--brand)]">You reposted</span>
+        </div>
+      )}
 
       <CardContent className="space-y-4 p-5 pt-0">
         <Link to={`/post/${post.id}`} className="group block">
@@ -192,12 +283,23 @@ export function PostCard({ post, detailed = false, compact = false }: PostCardPr
             <Heart className={cnHeart(isLiked)} />
             <span className="tabular-nums text-sm">{likesCount}</span>
           </Button>
-          <Link to={`/post/${post.id}`}>
-            <Button variant="ghost" size="sm" className="h-9 rounded-lg gap-2" aria-label={`View ${commentsCount} comments`}>
+          {!detailed && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 rounded-lg gap-2"
+              onClick={() => setShowComments((v) => !v)}
+              aria-label={`${showComments ? 'Hide' : 'View'} ${commentsCount} comments`}
+              aria-pressed={showComments}
+            >
               <MessageCircle className="h-4 w-4 text-[var(--muted-foreground)]" />
               <span className="tabular-nums text-sm">{commentsCount}</span>
             </Button>
-          </Link>
+          )}
+          <Button variant="ghost" size="sm" className="h-9 rounded-lg gap-2" onClick={handleToggleRepost} aria-pressed={isReposted}>
+            <RefreshCw className={`h-4 w-4 ${isReposted ? 'text-[var(--brand)]' : 'text-[var(--muted-foreground)]'}`} />
+            <span className="tabular-nums text-sm">{repostsCount}</span>
+          </Button>
           <Button variant="ghost" size="sm" className="h-9 rounded-lg" onClick={handleShare} aria-label="Share post">
             <Share2 className="h-4 w-4 text-[var(--muted-foreground)]" />
           </Button>
@@ -213,6 +315,35 @@ export function PostCard({ post, detailed = false, compact = false }: PostCardPr
           <Bookmark className={cnBookmark(isBookmarked)} />
         </Button>
       </CardFooter>
+
+      {!detailed && showComments && (
+        <div className="border-t border-[var(--border)] bg-[var(--background)] p-5">
+          <CommentForm postId={post.id} />
+          <div className="mt-4">
+            <CommentList postId={post.id} />
+          </div>
+        </div>
+      )}
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this post? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:bg-[var(--destructive)]/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

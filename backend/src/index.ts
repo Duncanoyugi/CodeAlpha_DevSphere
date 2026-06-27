@@ -31,6 +31,7 @@ import searchRoutes from './modules/search/search.routes';
 import technologyRoutes from './modules/technologies/technologies.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
 import bookmarksRoutes from './modules/bookmarks/bookmarks.routes';
+import repostRoutes from './modules/reposts/reposts.routes';
 
 
 
@@ -87,6 +88,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/technologies', technologyRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api', bookmarksRoutes);
+app.use('/api/reposts', repostRoutes);
 
 // Health check with service status
 app.get('/health', async (req, res) => {

@@ -176,4 +176,21 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  static async uploadAvatar(userId: string, data: string) {
+    if (!data.startsWith('data:image/')) {
+      throw new Error('Only image data URLs are supported');
+    }
+
+    const base64Data = data.split(',')[1] || '';
+    const size = Buffer.byteLength(base64Data, 'base64');
+    const maxSize = 5 * 1024 * 1024;
+    if (size > maxSize) {
+      throw new Error('Image is too large. Please use an image under 5MB.');
+    }
+
+    return {
+      avatarUrl: data,
+    };
+  }
 }
